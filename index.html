@@ -37,6 +37,10 @@
   --switch-off: #cfcdc6;
   --shadow: 0 1px 2px rgba(0,0,0,.05), 0 1px 8px rgba(0,0,0,.04);
   --sign-ink: #ffffff;
+  --tone-in: #a86b00;
+  --tone-out: #c62f2f;
+  --tone-save: #13875e;
+  --tone-chart: #2a78d6;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -62,6 +66,10 @@
     --switch-off: #4a4a46;
     --shadow: none;
     --sign-ink: #161615;
+    --tone-in: #e3a93b;
+    --tone-out: #f07171;
+    --tone-save: #3cc48f;
+    --tone-chart: #5b9cf0;
   }
 }
 :root[data-theme="dark"] {
@@ -87,6 +95,10 @@
   --switch-off: #4a4a46;
   --shadow: none;
   --sign-ink: #161615;
+  --tone-in: #e3a93b;
+  --tone-out: #f07171;
+  --tone-save: #3cc48f;
+  --tone-chart: #5b9cf0;
 }
 
 /* ===== ベース ===== */
@@ -194,32 +206,88 @@ h1, h2, h3 { margin: 0; line-height: 1.3; }
 .status .btn { margin-top: 8px; }
 .swatch { flex: none; width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
-/* ＋ − ％ のグループ */
-.ledger { margin-top: 22px; }
-.ledger-head { display: flex; align-items: center; gap: 8px; margin: 0 4px 8px; font-size: 14px; font-weight: 700; color: var(--text-2); }
-.sign { flex: none; width: 24px; height: 24px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; line-height: 1; color: var(--sign-ink); }
-.ledger.plus .sign { background: var(--ok); }
-.ledger.minus .sign { background: var(--danger); }
-.ledger.ratio .sign { background: var(--accent); font-size: 14px; }
-.ledger.plus .card { border-left: 4px solid var(--ok); }
-.ledger.minus .card { border-left: 4px solid var(--danger); }
-.ledger.ratio .card { border-left: 4px solid var(--accent); }
-.card.list { padding: 0; overflow: hidden; }
-.lrow { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 12px 10px 16px; color: inherit; text-decoration: none; border-top: 1px solid var(--border); }
-.card.list > .lrow:first-child { border-top: 0; }
-a.lrow:active, a.leg-row:active { background: var(--surface-2); }
-@media (hover: hover) { a.lrow:hover, a.leg-row:hover { background: var(--surface-2); } }
-.lrow .l { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.lrow .t { font-weight: 650; }
-.lrow .s { font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lrow .v { font-size: 18px; font-weight: 750; white-space: nowrap; }
-.chev { flex: none; width: 12px; color: var(--text-3); font-size: 20px; line-height: 1; text-align: center; }
-.lrow.sub { min-height: 44px; padding-left: 40px; border-top-style: dashed; }
-.lrow.sub .t { font-weight: 500; color: var(--text-2); font-size: 14px; }
-.lrow.sub .v { font-size: 15px; font-weight: 600; color: var(--text-2); }
-.lrow.total { background: var(--surface-2); }
-.alloc-block { padding: 14px 16px 8px; border-top: 1px solid var(--border); }
-.alloc-title { font-size: 13px; font-weight: 700; color: var(--text-2); }
+/* ＋ 入るお金 / − 出ていくお金 / 貯める / グラフ のグループ（グループごとに全体を色付け） */
+.equation { font-size: 13px; color: var(--text-2); margin: -2px 0 12px; line-height: 1.6; }
+.equation b { font-weight: 700; }
+.equation .in { color: var(--tone-in); }
+.equation .out { color: var(--tone-out); }
+.equation .save { color: var(--tone-save); }
+.grp { --tone: var(--tone-chart); margin-top: 22px; }
+.grp.tone-in { --tone: var(--tone-in); }
+.grp.tone-out { --tone: var(--tone-out); }
+.grp.tone-save { --tone: var(--tone-save); }
+.grp { --div: color-mix(in srgb, var(--tone) 22%, var(--border)); }
+.grp-head { display: flex; align-items: center; gap: 8px; margin: 0 4px 8px; font-size: 15px; font-weight: 750; color: var(--tone); }
+.grp-total { margin-left: auto; font-size: 16px; }
+.sign { flex: none; width: 24px; height: 24px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; line-height: 1; color: var(--sign-ink); background: var(--tone); }
+.sign svg { width: 15px; height: 15px; }
+.grp-card { background: color-mix(in srgb, var(--tone) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--tone) 30%, var(--border)); border-radius: 14px; overflow: hidden; }
+.grp-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--div); font-size: 13px; color: var(--text-2); }
+.grp-foot b { font-size: 16px; color: var(--text); }
+
+.xrow + .xrow { border-top: 1px solid var(--div); }
+.xhead { display: flex; align-items: stretch; }
+.xtoggle { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 10px 4px 10px 16px; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
+.xtoggle .l { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.xtoggle .t { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 370px) { .xtoggle { gap: 8px; padding-left: 12px; } .xtoggle .v { font-size: 16px; } .edit-btn, .edit-ico { width: 44px; } .srow { padding-left: 30px; } .srow .sv { margin-right: 22px; } }
+.xtoggle .s { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xtoggle .v { font-size: 18px; font-weight: 750; white-space: nowrap; }
+.caret { flex: none; width: 22px; height: 22px; color: var(--text-3); transition: transform .28s cubic-bezier(.2, .8, .2, 1); }
+.xrow.open .caret { transform: rotate(180deg); }
+.edit-btn { flex: none; width: 50px; display: flex; align-items: center; justify-content: center; color: var(--tone); text-decoration: none; }
+.edit-btn svg, .edit-ico svg { width: 18px; height: 18px; }
+.xbody { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s cubic-bezier(.2, .8, .2, 1); }
+.xrow.open .xbody { grid-template-rows: 1fr; }
+.xinner { min-height: 0; overflow: hidden; }
+.srow { display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 9px 0 9px 36px; border-top: 1px dashed var(--div); color: inherit; text-decoration: none; background: color-mix(in srgb, var(--surface) 50%, transparent); }
+.srow .sl { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.srow .st { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srow .ss { font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbar { display: block; height: 4px; margin-top: 5px; border-radius: 2px; overflow: hidden; background: color-mix(in srgb, var(--tone) 12%, transparent); }
+.sbar i { display: block; height: 100%; border-radius: 2px; }
+.srow .sv { margin-right: 26px; font-size: 15px; font-weight: 650; white-space: nowrap; }
+.edit-ico { flex: none; width: 50px; display: flex; justify-content: center; color: var(--tone); }
+.srow.is-off .st, .srow.is-off .sv { color: var(--text-3); }
+.srow.is-off .sv { text-decoration: line-through; }
+.off-tag { display: inline-block; margin-left: 4px; padding: 0 6px; border-radius: 99px; background: var(--surface-2); color: var(--text-3); font-size: 11px; font-weight: 600; vertical-align: 1px; }
+.add-link { flex: none; width: 90px; text-align: center; color: var(--tone); font-size: 14px; font-weight: 700; }
+.xtoggle:active, .srow:active, .edit-btn:active, .hbar:active, .mcol:active { background: color-mix(in srgb, var(--tone) 10%, transparent); }
+@media (hover: hover) { .xtoggle:hover, .srow:hover, .edit-btn:hover, .hbar:hover { background: color-mix(in srgb, var(--tone) 7%, transparent); } }
+
+/* グラフ */
+.chart-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; font-size: 14px; font-weight: 700; }
+.chart-title .muted { font-size: 13px; font-weight: 500; }
+.chart-note { margin: 8px 0 0; font-size: 12px; color: var(--text-3); }
+.hbar { display: block; padding: 9px 0; border-top: 1px solid var(--border); color: inherit; text-decoration: none; }
+.hbar:first-child { border-top: 0; }
+.hb-top { display: flex; align-items: baseline; gap: 8px; }
+.hb-name { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hb-val { font-weight: 700; white-space: nowrap; }
+.hb-pct { width: 3.6em; text-align: right; font-size: 13px; color: var(--text-3); }
+.hb-track { display: block; height: 8px; margin-top: 6px; border-radius: 4px; overflow: hidden; background: var(--surface-2); }
+.hb-track i { display: block; height: 100%; border-radius: 4px; background: var(--series-variable); }
+.trend-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 8px; font-size: 12px; color: var(--text-2); }
+.trend-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.line-swatch { display: inline-block; width: 14px; height: 2px; border-radius: 1px; background: var(--text); }
+.trend { display: flex; justify-content: space-around; gap: 4px; }
+.mcol { flex: 1; min-width: 0; max-width: 72px; display: flex; flex-direction: column; gap: 3px; padding: 6px 0 4px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; }
+.mcol.cur { background: var(--surface-2); }
+.mplot { position: relative; display: block; }
+.mstack { position: absolute; left: 24%; right: 24%; bottom: 0; display: flex; flex-direction: column-reverse; gap: 2px; }
+.mstack i { display: block; width: 100%; }
+.mstack i:last-child { border-radius: 4px 4px 0 0; }
+.mincome { position: absolute; left: 8%; right: 8%; height: 2px; margin-bottom: -1px; border-radius: 1px; background: var(--text); }
+.mlabel { font-size: 12px; font-weight: 700; text-align: center; }
+.mres { font-size: 11px; text-align: center; color: var(--text-2); white-space: nowrap; }
+.mres.neg { color: var(--danger); font-weight: 700; }
+
+a.leg-row:active { background: var(--surface-2); }
+@media (hover: hover) { a.leg-row:hover { background: var(--surface-2); } }
+
+/* 編集位置へ移動したときに光らせる */
+.item.flash { animation: flash 1.8s ease-out; }
+@keyframes flash { 0%, 35% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: var(--shadow); } }
 
 /* 配分バー */
 .alloc-bar-wrap { position: relative; margin: 4px 0; }
@@ -708,6 +776,7 @@ async function sha256Hex(text) {
  * アプリの状態
  * ===================================================================== */
 const state = {
+  homeOpen: new Set(), // ホームで開いている項目（income / fixed / variable / savings）
   data: null,
   month: null,
   view: 'home',
@@ -896,21 +965,133 @@ function allocationHTML(c) {
     <div class="legend" aria-label="収入比の配分">${rows}</div>`;
 }
 
-/** ホームの 1 行。href があればタップで編集画面へ */
-function ledgerRow({ href, title, sub, value, color, cls = '' }) {
-  const tag = href ? 'a' : 'div';
-  return `<${tag} class="lrow ${cls}" ${href ? `href="${href}"` : ''}>
-    ${color ? `<span class="swatch" style="background:${color}"></span>` : ''}
-    <span class="l"><span class="t">${title}</span>${sub ? `<span class="s">${sub}</span>` : ''}</span>
-    <span class="v num">${value}</span>
-    <span class="chev" aria-hidden="true">${href ? '›' : ''}</span>
-  </${tag}>`;
+const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
+const ICON_CARET = '<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+const ICON_CHART = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 20V11M12 20V5M18 20v-6"/></svg>';
+const GROUP_COLORS = { income: 'var(--tone-in)', fixed: 'var(--series-fixed)', variable: 'var(--series-variable)', savings: 'var(--series-savings)' };
+
+/** 10,000 以上は「1.2万」のように短くする（グラフのラベル用） */
+function shortYen(n) {
+  const a = Math.abs(n);
+  const sign = n < 0 ? '−' : '';
+  if (a < 10000) return sign + '¥' + nf.format(Math.round(a));
+  return sign + (a / 10000).toFixed(a < 100000 ? 1 : 0).replace(/\.0$/, '') + '万';
+}
+
+/** ホームの小項目（1 件ずつ）の表示用データ */
+function homeSubItems(kind, p, c) {
+  const items = kind === 'variable' ? sortByCategoryOrder(p.variable, cats().variable) : p[kind];
+  return items.map((it) => {
+    const sub = [];
+    let title;
+    if (kind === 'income') title = it.category || '（項目なし）';
+    else if (kind === 'fixed') { title = it.name || '（無題）'; if (it.payDay) sub.push(it.payDay === '末' ? '月末払い' : `${it.payDay}日払い`); }
+    else if (kind === 'savings') { title = it.name || '（無題）'; if (it.type) sub.push(it.type); }
+    else { title = it.category || '（項目なし）'; if (it.enabled && toAmount(it.amount)) sub.push('1日 ' + yen(toAmount(it.amount) / c.days)); }
+    if (it.memo) sub.push(it.memo);
+    return { id: it.id, title, sub: sub.join(' · '), amount: toAmount(it.amount), enabled: it.enabled };
+  });
+}
+
+/** タップで小項目が開く行（右の鉛筆はその入力タブへ、小項目はその項目の編集位置へ） */
+function expandRowHTML({ kind, title, sub, value, total, minus, p, c }) {
+  const open = state.homeOpen.has(kind);
+  const color = GROUP_COLORS[kind];
+  const subs = kind === 'variable' && c.variableIsTotal
+    ? [{ id: 'total', title: '全体で入力', sub: `1日 ${yen(c.variableDaily)} · 週 ${yen(c.variableWeekly)}`, amount: c.variable, enabled: true }]
+    : homeSubItems(kind, p, c);
+  const subHTML = subs.length ? subs.map((x) => {
+    const w = total > 0 && x.enabled ? Math.max(1.5, (x.amount / total) * 100) : 0;
+    return `<a class="srow ${x.enabled ? '' : 'is-off'}" href="#input/${kind}/${esc(x.id)}" aria-label="${esc(x.title)} を編集">
+        <span class="sl">
+          <span class="st">${esc(x.title)}${x.enabled ? '' : '<span class="off-tag">オフ</span>'}</span>
+          ${x.sub ? `<span class="ss">${esc(x.sub)}</span>` : ''}
+          <span class="sbar" aria-hidden="true"><i style="width:${w}%;background:${color}"></i></span>
+        </span>
+        <span class="sv num">${minus && x.amount > 0 ? '−' : ''}${yen(x.amount)}</span>
+        <span class="edit-ico" aria-hidden="true">${ICON_EDIT}</span>
+      </a>`;
+  }).join('')
+    : `<a class="srow" href="#input/${kind}"><span class="sl"><span class="st muted">まだ項目がありません</span></span><span class="add-link">追加する</span></a>`;
+  return `
+    <div class="xrow ${open ? 'open' : ''}" data-kind="${kind}">
+      <div class="xhead">
+        <button type="button" class="xtoggle" data-toggle="${kind}" aria-expanded="${open}" aria-controls="subs-${kind}">
+          <span class="swatch" style="background:${color}"></span>
+          <span class="l"><span class="t">${title}</span>${sub ? `<span class="s">${esc(sub)}</span>` : ''}</span>
+          <span class="v num">${value}</span>
+          ${ICON_CARET}
+        </button>
+        <a class="edit-btn" href="#input/${kind}" aria-label="${title}を編集">${ICON_EDIT}</a>
+      </div>
+      <div class="xbody" id="subs-${kind}" ${open ? '' : 'inert'}><div class="xinner">${subHTML}</div></div>
+    </div>`;
+}
+
+/** グラフ: 変動費の内訳（カテゴリごと、多い順） */
+function variableBreakdownHTML(p, c) {
+  if (c.variableIsTotal) return '';
+  const rows = [];
+  for (const it of sortByCategoryOrder(p.variable, cats().variable)) {
+    const a = toAmount(it.amount);
+    if (!it.enabled || !a) continue;
+    const name = it.category || '（項目なし）';
+    const r = rows.find((x) => x.name === name);
+    if (r) r.amount += a; else rows.push({ name, amount: a, id: it.id });
+  }
+  if (!rows.length) return '';
+  rows.sort((x, y) => y.amount - x.amount);
+  const max = rows[0].amount;
+  return `
+    <div class="card">
+      <div class="chart-title">変動費の内訳<span class="muted num">合計 ${yen(c.variable)}</span></div>
+      <div>${rows.map((r) => `
+        <a class="hbar" href="#input/variable/${esc(r.id)}" title="${esc(r.name)} ${yen(r.amount)}（変動費の ${pct(r.amount / c.variable)}）">
+          <span class="hb-top"><span class="hb-name">${esc(r.name)}</span><span class="hb-val num">${yen(r.amount)}</span><span class="hb-pct num">${pct(r.amount / c.variable)}</span></span>
+          <span class="hb-track" aria-hidden="true"><i style="width:${(r.amount / max) * 100}%"></i></span>
+        </a>`).join('')}
+      </div>
+    </div>`;
+}
+
+/** グラフ: 月別の推移（直近 6 か月。棒 = 固定費・変動費・貯金、線 = 収入） */
+function monthTrendHTML() {
+  const months = sortedMonths().slice(-6);
+  const data = months.map((m) => ({ m, c: calcPlan(state.data.plans[m], cats().savingsType) }));
+  const max = Math.max(1, ...data.map(({ c }) => Math.max(c.income, c.spendAndSave)));
+  const H = 140;
+  const seg = (v, color) => (v > 0 ? `<i style="height:${Math.max(2, (v / max) * H)}px;background:${color}"></i>` : '');
+  const cols = data.map(({ m, c }) => {
+    const label = `${monthLabel(m)}: 収入 ${yen(c.income)}、固定費 ${yen(c.fixed)}、変動費 ${yen(c.variable)}、貯金 ${yen(c.savings)}、予備費 ${yen(c.reserve)}`;
+    return `
+      <button type="button" class="mcol ${m === state.month ? 'cur' : ''}" data-month="${m}" title="${esc(label)}" aria-label="${esc(label)}">
+        <span class="mplot" style="height:${H}px">
+          <span class="mstack">${seg(c.fixed, 'var(--series-fixed)')}${seg(c.variable, 'var(--series-variable)')}${seg(c.savings, 'var(--series-savings)')}</span>
+          ${c.income > 0 ? `<span class="mincome" style="bottom:${(c.income / max) * H}px"></span>` : ''}
+        </span>
+        <span class="mlabel">${Number(m.slice(5))}月</span>
+        <span class="mres num ${c.reserve < 0 ? 'neg' : ''}">${shortYen(c.reserve)}</span>
+      </button>`;
+  }).join('');
+  return `
+    <div class="card">
+      <div class="chart-title">月別の推移<span class="muted">下の数字は予備費</span></div>
+      <div class="trend-legend">
+        <span><span class="swatch" style="background:var(--series-fixed)"></span>固定費</span>
+        <span><span class="swatch" style="background:var(--series-variable)"></span>変動費</span>
+        <span><span class="swatch" style="background:var(--series-savings)"></span>貯金</span>
+        <span><span class="line-swatch"></span>収入</span>
+      </div>
+      <div class="trend">${cols}</div>
+      <p class="chart-note">${months.length < 2 ? '月を追加すると、ここに推移が並びます。' : '棒が線（収入）より上に出ている月は予算オーバーです。'}タップするとその月に切り替わります。</p>
+    </div>`;
 }
 
 function renderHome() {
   const p = plan();
   const c = calcPlan(p, cats().savingsType);
   const neg = c.reserve < 0;
+  const spend = c.fixed + c.variable;
   let status;
   if (neg) {
     status = `<div class="status bad" role="alert"><span class="ico" aria-hidden="true">⚠️</span><div>
@@ -926,49 +1107,67 @@ function renderHome() {
 
   const count = (kind) => p[kind].filter((i) => i.enabled).length;
   const minus = (v) => (v > 0 ? '−' + yen(v) : yen(v));
-  const variableSub = `${c.variableIsTotal ? '全体で入力' : count('variable') + '項目'} · 1日 ${yen(c.variableDaily)} · 週 ${yen(c.variableWeekly)}`;
-
-  const plusRows = [
-    ledgerRow({ href: '#input/income', title: '収入合計', sub: `${count('income')}項目`, value: yen(c.income) }),
-    ...c.incomeByCategory.map((r) => ledgerRow({ href: '#input/income', title: esc(r.name), value: yen(r.amount), cls: 'sub' })),
-  ].join('');
-
-  const minusRows = [
-    ledgerRow({ href: '#input/fixed', title: '固定費', sub: `${count('fixed')}項目`, value: minus(c.fixed), color: 'var(--series-fixed)' }),
-    ledgerRow({ href: '#input/variable', title: '変動費予算', sub: variableSub, value: minus(c.variable), color: 'var(--series-variable)' }),
-    ledgerRow({ href: '#input/savings', title: '貯金・投資', sub: `${count('savings')}項目`, value: minus(c.savings), color: 'var(--series-savings)' }),
-    ...c.savingsByType.filter((t) => t.amount > 0)
-      .map((t) => ledgerRow({ href: '#input/savings', title: esc(t.type), value: minus(t.amount), cls: 'sub' })),
-    ledgerRow({ title: '支出＋貯金', sub: '固定費＋変動費＋貯金', value: minus(c.spendAndSave), cls: 'total' }),
-  ].join('');
+  const typeSummary = c.savingsByType.filter((t) => t.amount > 0).map((t) => `${t.type} ${yen(t.amount)}`).join(' · ');
 
   $('#view-home').innerHTML = `
     <div class="card hero ${neg ? 'is-negative' : ''}">
       <div class="hero-label">${monthLabel(p.month)}（${c.days}日）の予備費</div>
       <div class="hero-value num">${yen(c.reserve)}</div>
+      <div class="equation num"><span class="in">収入 <b>${yen(c.income)}</b></span> − <span class="out">支出 <b>${yen(spend)}</b></span> − <span class="save">貯金 <b>${yen(c.savings)}</b></span></div>
       ${status}
     </div>
 
-    <section class="ledger plus">
-      <h2 class="ledger-head"><span class="sign" aria-hidden="true">＋</span>入るお金</h2>
-      <div class="card list">${plusRows}</div>
-    </section>
-
-    <section class="ledger minus">
-      <h2 class="ledger-head"><span class="sign" aria-hidden="true">−</span>出ていくお金・よけておくお金</h2>
-      <div class="card list">${minusRows}</div>
-    </section>
-
-    <section class="ledger ratio">
-      <h2 class="ledger-head"><span class="sign" aria-hidden="true">%</span>割合</h2>
-      <div class="card list">
-        ${ledgerRow({ href: '#input/savings', title: '貯蓄率', sub: '貯金合計 ÷ 収入合計', value: pct(c.savingsRate) })}
-        <div class="alloc-block">
-          <div class="alloc-title">収入比の配分</div>
-          ${allocationHTML(c)}
-        </div>
+    <section class="grp tone-in">
+      <h2 class="grp-head"><span class="sign" aria-hidden="true">＋</span>入るお金<span class="grp-total num">${yen(c.income)}</span></h2>
+      <div class="grp-card">
+        ${expandRowHTML({ kind: 'income', title: '収入', sub: `${count('income')}項目`, value: yen(c.income), total: c.income, p, c })}
       </div>
+    </section>
+
+    <section class="grp tone-out">
+      <h2 class="grp-head"><span class="sign" aria-hidden="true">−</span>出ていくお金<span class="grp-total num">${minus(spend)}</span></h2>
+      <div class="grp-card">
+        ${expandRowHTML({ kind: 'fixed', title: '固定費', sub: `${count('fixed')}項目`, value: minus(c.fixed), total: c.fixed, minus: true, p, c })}
+        ${expandRowHTML({ kind: 'variable', title: '変動費', sub: `${c.variableIsTotal ? '全体で入力' : count('variable') + '項目'} · 1日 ${yen(c.variableDaily)}`, value: minus(c.variable), total: c.variable, minus: true, p, c })}
+      </div>
+    </section>
+
+    <section class="grp tone-save">
+      <h2 class="grp-head"><span class="sign" aria-hidden="true">貯</span>貯めるお金<span class="grp-total num">${yen(c.savings)}</span></h2>
+      <div class="grp-card">
+        ${expandRowHTML({ kind: 'savings', title: '貯金・投資', sub: typeSummary || `${count('savings')}項目`, value: yen(c.savings), total: c.savings, p, c })}
+        <div class="grp-foot"><span>貯蓄率（貯金 ÷ 収入）</span><b class="num">${pct(c.savingsRate)}</b></div>
+      </div>
+    </section>
+
+    <section class="grp tone-chart">
+      <h2 class="grp-head"><span class="sign" aria-hidden="true">${ICON_CHART}</span>グラフ</h2>
+      <div class="card">
+        <div class="chart-title">収入の使い道</div>
+        ${allocationHTML(c)}
+      </div>
+      ${variableBreakdownHTML(p, c)}
+      ${monthTrendHTML()}
     </section>`;
+}
+
+function setupHomeEvents() {
+  const root = $('#view-home');
+  root.addEventListener('click', (e) => {
+    const toggle = e.target.closest('[data-toggle]');
+    if (toggle) {
+      const kind = toggle.dataset.toggle;
+      const row = toggle.closest('.xrow');
+      const open = !state.homeOpen.has(kind);
+      if (open) state.homeOpen.add(kind); else state.homeOpen.delete(kind);
+      row.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      row.querySelector('.xbody').inert = !open;
+      return;
+    }
+    const col = e.target.closest('[data-month]');
+    if (col && col.dataset.month !== state.month) setMonth(col.dataset.month);
+  });
 }
 
 /* =====================================================================
@@ -1572,7 +1771,8 @@ function renderAll() {
 
 function applyRoute() {
   // #home / #input / #input/<収入|固定費…のキー> / #settings
-  const [v, sub] = (location.hash || '#home').slice(1).split('/');
+  // #input/<キー>/<項目ID>（または total）なら、その項目の位置までスクロールして光らせる
+  const [v, sub, itemId] = (location.hash || '#home').slice(1).split('/');
   state.view = ['home', 'input', 'settings'].includes(v) ? v : 'home';
   if (state.view === 'input' && PLAN_KINDS.includes(sub)) state.tab = sub;
   document.querySelectorAll('[data-view]').forEach((el) => el.classList.toggle('hidden', el.dataset.view !== state.view));
@@ -1582,6 +1782,20 @@ function applyRoute() {
   if (state.view === 'home') renderHome();
   if (state.view === 'input') renderInputPane();
   window.scrollTo({ top: 0 });
+  if (state.view === 'input' && itemId) revealEditTarget(decodeURIComponent(itemId));
+}
+
+function revealEditTarget(id) {
+  const el = id === 'total'
+    ? document.querySelector('#input-pane [data-plan-f="variableTotal"]')?.closest('.item')
+    : document.querySelector(`#input-pane .item[data-id="${CSS.escape(id)}"]`);
+  if (!el) return;
+  requestAnimationFrame(() => {
+    el.scrollIntoView({ block: 'center' });
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+  });
 }
 
 /* =====================================================================
@@ -1615,6 +1829,7 @@ async function startApp() {
   renderMonthSelect();
   $('#month-select').addEventListener('change', (e) => setMonth(e.target.value));
   $('#new-month-btn').addEventListener('click', openNewMonthDialog);
+  setupHomeEvents();
   setupInputEvents();
   setupSettingsEvents();
   window.addEventListener('hashchange', applyRoute);
