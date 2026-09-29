@@ -34,6 +34,7 @@
   --series-reserve: #cfcdc6;
   --switch-off: #cfcdc6;
   --shadow: 0 1px 2px rgba(0,0,0,.05), 0 1px 8px rgba(0,0,0,.04);
+  --sign-ink: #ffffff;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -58,6 +59,7 @@
     --series-reserve: #4a4a46;
     --switch-off: #4a4a46;
     --shadow: none;
+    --sign-ink: #161615;
   }
 }
 :root[data-theme="dark"] {
@@ -82,6 +84,7 @@
   --series-reserve: #4a4a46;
   --switch-off: #4a4a46;
   --shadow: none;
+  --sign-ink: #161615;
 }
 
 /* ===== ベース ===== */
@@ -187,14 +190,34 @@ h1, h2, h3 { margin: 0; line-height: 1.3; }
 .status.bad strong { color: var(--danger); }
 .status.good { background: var(--ok-bg); color: var(--ok); }
 .status .btn { margin-top: 8px; }
-.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (min-width: 560px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow); }
-.stat .k { font-size: 12px; color: var(--text-2); font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.stat .v { font-size: 20px; font-weight: 750; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.stat .s { font-size: 12px; color: var(--text-3); }
-.stat.is-negative .v { color: var(--danger); }
 .swatch { flex: none; width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+/* ＋ − ％ のグループ */
+.ledger { margin-top: 22px; }
+.ledger-head { display: flex; align-items: center; gap: 8px; margin: 0 4px 8px; font-size: 14px; font-weight: 700; color: var(--text-2); }
+.sign { flex: none; width: 24px; height: 24px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; line-height: 1; color: var(--sign-ink); }
+.ledger.plus .sign { background: var(--ok); }
+.ledger.minus .sign { background: var(--danger); }
+.ledger.ratio .sign { background: var(--accent); font-size: 14px; }
+.ledger.plus .card { border-left: 4px solid var(--ok); }
+.ledger.minus .card { border-left: 4px solid var(--danger); }
+.ledger.ratio .card { border-left: 4px solid var(--accent); }
+.card.list { padding: 0; overflow: hidden; }
+.lrow { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 12px 10px 16px; color: inherit; text-decoration: none; border-top: 1px solid var(--border); }
+.card.list > .lrow:first-child { border-top: 0; }
+a.lrow:active, a.leg-row:active { background: var(--surface-2); }
+@media (hover: hover) { a.lrow:hover, a.leg-row:hover { background: var(--surface-2); } }
+.lrow .l { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.lrow .t { font-weight: 650; }
+.lrow .s { font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow .v { font-size: 18px; font-weight: 750; white-space: nowrap; }
+.chev { flex: none; width: 12px; color: var(--text-3); font-size: 20px; line-height: 1; text-align: center; }
+.lrow.sub { min-height: 44px; padding-left: 40px; border-top-style: dashed; }
+.lrow.sub .t { font-weight: 500; color: var(--text-2); font-size: 14px; }
+.lrow.sub .v { font-size: 15px; font-weight: 600; color: var(--text-2); }
+.lrow.total { background: var(--surface-2); }
+.alloc-block { padding: 14px 16px 8px; border-top: 1px solid var(--border); }
+.alloc-title { font-size: 13px; font-weight: 700; color: var(--text-2); }
 
 /* 配分バー */
 .alloc-bar-wrap { position: relative; margin: 4px 0; }
@@ -213,14 +236,11 @@ h1, h2, h3 { margin: 0; line-height: 1.3; }
 .alloc-marker.at-start span { left: 0; transform: none; }
 .alloc-marker.at-end span { left: auto; right: 0; transform: none; }
 .alloc-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); }
-.legend { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
-.legend td { padding: 7px 0; border-top: 1px solid var(--border); }
-.legend .lbl { display: inline-flex; align-items: center; gap: 8px; }
-.legend td.r { text-align: right; white-space: nowrap; padding-left: 12px; }
-.legend tr.neg td { color: var(--danger); font-weight: 700; }
-.subtypes { margin: 0; padding: 0; list-style: none; font-size: 14px; }
-.subtypes li { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--border); }
-.subtypes li:first-child { border-top: 0; }
+.legend { margin-top: 10px; font-size: 14px; }
+.leg-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 4.2em 12px; gap: 10px; align-items: center; min-height: 44px; padding: 0 0 0 2px; color: inherit; text-decoration: none; border-top: 1px solid var(--border); }
+.leg-row > .num { text-align: right; white-space: nowrap; }
+.leg-row .lbl { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.leg-row.neg { color: var(--danger); font-weight: 700; }
 
 /* ===== 入力 ===== */
 .mini-summary {
@@ -274,6 +294,10 @@ h1, h2, h3 { margin: 0; line-height: 1.3; }
 .total-sub { font-size: 13px; color: var(--text-2); padding: 0 14px; display: flex; flex-wrap: wrap; gap: 2px 14px; }
 .empty { text-align: center; color: var(--text-3); padding: 20px 8px; font-size: 14px; border: 1px dashed var(--border); border-radius: 14px; }
 .next-step { display: flex; justify-content: flex-end; }
+.seg-ctl { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 0 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; }
+.seg-ctl button { min-height: 40px; border: 0; border-radius: 9px; background: transparent; color: var(--text-2); font-size: 15px; font-weight: 700; }
+.seg-ctl button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.vt-label { font-weight: 650; }
 
 /* ===== 設定 ===== */
 .cat-list { list-style: none; margin: 0 0 10px; padding: 0; }
@@ -389,7 +413,7 @@ details.card[open] > summary { margin-bottom: 10px; }
 // 作り方は README.md の「パスコードの設定」を参照。
 const PASSCODE_HASH = '42f0fa5ac5135466b793a54d3d9029212ad9948b616bb201e0dd4ce9edc522bd';
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 const PLAN_KINDS = ['income', 'fixed', 'savings', 'variable'];
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 
@@ -473,12 +497,20 @@ function newItem(kind, fields) {
 
 function newPlan(month) {
   const t = nowISO();
-  return { month, createdAt: t, updatedAt: t, income: [], fixed: [], savings: [], variable: [] };
+  return {
+    month, createdAt: t, updatedAt: t,
+    // 変動費の入れ方: 'items' = 項目別に入力 / 'total' = 全体（1つの金額）で入力
+    variableMode: 'items',
+    variableTotal: 0,
+    income: [], fixed: [], savings: [], variable: [],
+  };
 }
 
 /** 既存の月をコピーして新しい月を作る（ID と更新日時は振り直す） */
 function copyPlan(src, month) {
   const p = newPlan(month);
+  p.variableMode = src.variableMode === 'total' ? 'total' : 'items';
+  p.variableTotal = toAmount(src.variableTotal);
   for (const kind of PLAN_KINDS) {
     p[kind] = (src[kind] || []).map((it) => ({ ...clone(it), id: newId(), updatedAt: p.createdAt }));
   }
@@ -494,11 +526,17 @@ function toAmount(v) {
   return s ? Math.min(Number(s), 999999999999) : 0;
 }
 
-/** 古い schemaVersion のデータを最新に変換する（今は v1 のみ） */
+/** 古い schemaVersion のデータを最新に変換する */
 function migrate(d) {
   const v = Number(d.schemaVersion || 1);
   if (v > SCHEMA_VERSION) throw new Error('このアプリより新しい形式のデータです（schemaVersion ' + v + '）');
-  // 例: if (v < 2) { ...v1→v2 の変換...; d.schemaVersion = 2; }
+  if (v < 2) {
+    // v1 → v2: 変動費の入れ方（variableMode / variableTotal）を追加。既存の月は項目別のまま
+    for (const p of Object.values(d.plans || {})) {
+      if (p && typeof p === 'object') { p.variableMode = 'items'; p.variableTotal = 0; }
+    }
+    d.schemaVersion = 2;
+  }
   return d;
 }
 
@@ -527,6 +565,8 @@ function normalizeData(raw) {
       month,
       createdAt: str(p.createdAt) || nowISO(),
       updatedAt: str(p.updatedAt) || nowISO(),
+      variableMode: p.variableMode === 'total' ? 'total' : 'items',
+      variableTotal: toAmount(p.variableTotal),
     };
     for (const kind of PLAN_KINDS) {
       plan[kind] = (Array.isArray(p[kind]) ? p[kind] : []).filter((it) => it && typeof it === 'object').map((it) => {
@@ -557,7 +597,8 @@ function calcPlan(plan, savingsTypes) {
   const income = sumEnabled(plan.income);
   const fixed = sumEnabled(plan.fixed);
   const savings = sumEnabled(plan.savings);
-  const variable = sumEnabled(plan.variable);
+  const variableIsTotal = plan.variableMode === 'total';
+  const variable = variableIsTotal ? toAmount(plan.variableTotal) : sumEnabled(plan.variable);
   const spendAndSave = fixed + variable + savings; // 支出＋貯金
   const reserve = income - spendAndSave;           // 予備費
   const ratio = (v) => (income > 0 ? v / income : null);
@@ -572,11 +613,23 @@ function calcPlan(plan, savingsTypes) {
   const untyped = plan.savings.filter((it) => it.enabled && !it.type).reduce((s, it) => s + toAmount(it.amount), 0);
   if (untyped) savingsByType.push({ type: '（種別なし）', amount: untyped });
 
+  // 収入のカテゴリごとの小計（マスタ外も含め、出てきた順）
+  const incomeByCategory = [];
+  for (const it of plan.income) {
+    if (!it.enabled) continue;
+    const name = it.category || '（項目なし）';
+    const row = incomeByCategory.find((r) => r.name === name);
+    if (row) row.amount += toAmount(it.amount); else incomeByCategory.push({ name, amount: toAmount(it.amount) });
+  }
+
   return {
-    income, fixed, savings, variable, spendAndSave, reserve,
+    income, fixed, savings, variable, spendAndSave, reserve, variableIsTotal,
     savingsRate: ratio(savings),
     share: { fixed: ratio(fixed), variable: ratio(variable), savings: ratio(savings), reserve: ratio(reserve) },
     savingsByType,
+    incomeByCategory,
+    variableWeekly: variable * 12 / 365 * 7,
+    variableDaily: variable / daysInMonth(plan.month),
     days: daysInMonth(plan.month),
   };
 }
@@ -762,9 +815,9 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#moda
  * 画面: ホーム
  * ===================================================================== */
 const SERIES = [
-  { key: 'fixed', label: '固定費', color: 'var(--series-fixed)' },
-  { key: 'variable', label: '変動費予算', color: 'var(--series-variable)' },
-  { key: 'savings', label: '貯金・投資', color: 'var(--series-savings)' },
+  { key: 'fixed', label: '固定費', color: 'var(--series-fixed)', tab: 'fixed' },
+  { key: 'variable', label: '変動費予算', color: 'var(--series-variable)', tab: 'variable' },
+  { key: 'savings', label: '貯金・投資', color: 'var(--series-savings)', tab: 'savings' },
   { key: 'reserve', label: '予備費', color: 'var(--series-reserve)' },
 ];
 
@@ -793,10 +846,13 @@ function allocationHTML(c) {
   const rows = SERIES.map((s) => {
     const v = c[s.key];
     const neg = s.key === 'reserve' && v < 0;
-    return `<tr class="${neg ? 'neg' : ''}">
-      <td><span class="lbl"><span class="swatch" style="background:${s.color}"></span>${s.label}${neg ? '（不足）' : ''}</span></td>
-      <td class="r num">${yen(v)}</td>
-      <td class="r num">${pct(c.share[s.key])}</td></tr>`;
+    const inner = `
+      <span class="lbl"><span class="swatch" style="background:${s.color}"></span>${s.label}${neg ? '（不足）' : ''}</span>
+      <span class="num">${yen(v)}</span>
+      <span class="num">${pct(c.share[s.key])}</span>`;
+    return s.tab
+      ? `<a class="leg-row" href="#input/${s.tab}">${inner}<span class="chev" aria-hidden="true">›</span></a>`
+      : `<div class="leg-row ${neg ? 'neg' : ''}">${inner}<span></span></div>`;
   }).join('');
   return `
     <div class="alloc-bar-wrap ${over ? 'is-over' : ''}">
@@ -804,9 +860,18 @@ function allocationHTML(c) {
       ${overlay}
     </div>
     <div class="alloc-scale"><span>0</span><span>${over ? '支出＋貯金 ' + yen(c.spendAndSave) : '収入 ' + yen(c.income)}</span></div>
-    <table class="legend" aria-label="収入比の配分">
-      <tbody>${rows}</tbody>
-    </table>`;
+    <div class="legend" aria-label="収入比の配分">${rows}</div>`;
+}
+
+/** ホームの 1 行。href があればタップで編集画面へ */
+function ledgerRow({ href, title, sub, value, color, cls = '' }) {
+  const tag = href ? 'a' : 'div';
+  return `<${tag} class="lrow ${cls}" ${href ? `href="${href}"` : ''}>
+    ${color ? `<span class="swatch" style="background:${color}"></span>` : ''}
+    <span class="l"><span class="t">${title}</span>${sub ? `<span class="s">${sub}</span>` : ''}</span>
+    <span class="v num">${value}</span>
+    <span class="chev" aria-hidden="true">${href ? '›' : ''}</span>
+  </${tag}>`;
 }
 
 function renderHome() {
@@ -818,17 +883,31 @@ function renderHome() {
     status = `<div class="status bad" role="alert"><span class="ico" aria-hidden="true">⚠️</span><div>
       <strong>予算オーバー：${yen(-c.reserve)} 足りません。</strong><br>
       変動費予算・貯金計画・固定費のどこかを削って、予備費を 0 以上にしましょう。
-      <div><a class="btn small danger" href="#input">入力で見直す</a></div></div></div>`;
+      <div><a class="btn small danger" href="#input/variable">入力で見直す</a></div></div></div>`;
   } else if (c.income <= 0) {
-    status = `<div class="status good"><span class="ico" aria-hidden="true">ℹ️</span><div>まずは「入力」から収入見積を入れてください。</div></div>`;
+    status = `<div class="status good"><span class="ico" aria-hidden="true">ℹ️</span><div>まずは収入見積を入れてください。
+      <div><a class="btn small" href="#input/income">収入を入力する</a></div></div></div>`;
   } else {
     status = `<div class="status good"><span class="ico" aria-hidden="true">✓</span><div>計画は収入の範囲に収まっています。予備費は収入の ${pct(c.share.reserve)} です。</div></div>`;
   }
 
-  const stat = (k, v, s, color, extraCls = '') =>
-    `<div class="stat ${extraCls}"><div class="k">${color ? `<span class="swatch" style="background:${color}"></span>` : ''}${k}</div><div class="v num">${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+  const count = (kind) => p[kind].filter((i) => i.enabled).length;
+  const minus = (v) => (v > 0 ? '−' + yen(v) : yen(v));
+  const variableSub = `${c.variableIsTotal ? '全体で入力' : count('variable') + '項目'} · 1日 ${yen(c.variableDaily)} · 週 ${yen(c.variableWeekly)}`;
 
-  const byType = c.savingsByType.filter((t) => t.amount > 0 || cats().savingsType.includes(t.type));
+  const plusRows = [
+    ledgerRow({ href: '#input/income', title: '収入合計', sub: `${count('income')}項目`, value: yen(c.income) }),
+    ...c.incomeByCategory.map((r) => ledgerRow({ href: '#input/income', title: esc(r.name), value: yen(r.amount), cls: 'sub' })),
+  ].join('');
+
+  const minusRows = [
+    ledgerRow({ href: '#input/fixed', title: '固定費', sub: `${count('fixed')}項目`, value: minus(c.fixed), color: 'var(--series-fixed)' }),
+    ledgerRow({ href: '#input/variable', title: '変動費予算', sub: variableSub, value: minus(c.variable), color: 'var(--series-variable)' }),
+    ledgerRow({ href: '#input/savings', title: '貯金・投資', sub: `${count('savings')}項目`, value: minus(c.savings), color: 'var(--series-savings)' }),
+    ...c.savingsByType.filter((t) => t.amount > 0)
+      .map((t) => ledgerRow({ href: '#input/savings', title: esc(t.type), value: minus(t.amount), cls: 'sub' })),
+    ledgerRow({ title: '支出＋貯金', sub: '固定費＋変動費＋貯金', value: minus(c.spendAndSave), cls: 'total' }),
+  ].join('');
 
   $('#view-home').innerHTML = `
     <div class="card hero ${neg ? 'is-negative' : ''}">
@@ -837,24 +916,26 @@ function renderHome() {
       ${status}
     </div>
 
-    <h2 class="section-title">サマリー</h2>
-    <div class="stats">
-      ${stat('収入合計', yen(c.income))}
-      ${stat('固定費', yen(c.fixed), '収入比 ' + pct(c.share.fixed), 'var(--series-fixed)')}
-      ${stat('変動費予算', yen(c.variable), '収入比 ' + pct(c.share.variable), 'var(--series-variable)')}
-      ${stat('貯金合計', yen(c.savings), '収入比 ' + pct(c.share.savings), 'var(--series-savings)')}
-      ${stat('支出＋貯金', yen(c.spendAndSave), '固定費＋変動費＋貯金')}
-      ${stat('貯蓄率', pct(c.savingsRate), '貯金合計 ÷ 収入合計')}
-    </div>
+    <section class="ledger plus">
+      <h2 class="ledger-head"><span class="sign" aria-hidden="true">＋</span>入るお金</h2>
+      <div class="card list">${plusRows}</div>
+    </section>
 
-    <h2 class="section-title">収入比の配分</h2>
-    <div class="card">${allocationHTML(c)}</div>
+    <section class="ledger minus">
+      <h2 class="ledger-head"><span class="sign" aria-hidden="true">−</span>出ていくお金・よけておくお金</h2>
+      <div class="card list">${minusRows}</div>
+    </section>
 
-    <h2 class="section-title">貯金・投資の内訳</h2>
-    <div class="card">
-      ${byType.length ? `<ul class="subtypes">${byType.map((t) => `<li><span>${esc(t.type)}</span><span class="num">${yen(t.amount)}</span></li>`).join('')}</ul>`
-        : '<div class="muted">種別がありません</div>'}
-    </div>`;
+    <section class="ledger ratio">
+      <h2 class="ledger-head"><span class="sign" aria-hidden="true">%</span>割合</h2>
+      <div class="card list">
+        ${ledgerRow({ href: '#input/savings', title: '貯蓄率', sub: '貯金合計 ÷ 収入合計', value: pct(c.savingsRate) })}
+        <div class="alloc-block">
+          <div class="alloc-title">収入比の配分</div>
+          ${allocationHTML(c)}
+        </div>
+      </div>
+    </section>`;
 }
 
 /* =====================================================================
@@ -881,6 +962,10 @@ function paydayOptions(current) {
   html += `<option value="末" ${current === '末' ? 'selected' : ''}>月末</option>`;
   if (current && !/^([1-9]|[12]\d|3[01]|末)$/.test(current)) html += `<option value="${esc(current)}" selected>${esc(current)}</option>`;
   return html;
+}
+
+function totalDerivedHTML(c) {
+  return `<span>週 <b>${yen(c.variableWeekly)}</b></span><span>1日 <b>${yen(c.variableDaily)}</b></span><span>${c.days}日の月</span>`;
 }
 
 function derivedHTML(item, c) {
@@ -939,10 +1024,11 @@ function paneFootHTML(kind, c) {
   if (kind === 'savings') {
     sub = `<div class="total-sub">${c.savingsByType.map((t) => `<span>${esc(t.type)} <b class="num">${yen(t.amount)}</b></span>`).join('')}</div>`;
   } else if (kind === 'variable') {
-    sub = `<div class="total-sub"><span>週あたり <b class="num">${yen(c.variable * 12 / 365 * 7)}</b></span><span>1日あたり <b class="num">${yen(c.variable / c.days)}</b></span></div>`;
+    sub = `<div class="total-sub"><span>週あたり <b class="num">${yen(c.variableWeekly)}</b></span><span>1日あたり <b class="num">${yen(c.variableDaily)}</b></span></div>`;
   }
+  const note = kind === 'variable' && c.variableIsTotal ? '全体で入力' : `有効 ${on}/${items.length}件`;
   return `
-    <div class="total-row"><span>${PANES[kind].title} 合計 <span class="muted" style="font-weight:500;font-size:13px">（有効 ${on}/${items.length}件）</span></span><span class="v num">${yen(c[kind])}</span></div>
+    <div class="total-row"><span>${PANES[kind].title} 合計 <span class="muted" style="font-weight:500;font-size:13px">（${note}）</span></span><span class="v num">${yen(c[kind])}</span></div>
     ${sub}`;
 }
 
@@ -953,6 +1039,37 @@ function renderInputPane() {
   const cfg = PANES[kind];
   const items = p[kind];
   const next = PLAN_KINDS[PLAN_KINDS.indexOf(kind) + 1];
+  const nextHTML = next
+    ? `<button type="button" class="btn ghost" data-tab="${next}">次へ：${PANES[next].step}. ${PANES[next].title} →</button>`
+    : `<a class="btn ghost" href="#home">予備費を確認する →</a>`;
+
+  // 変動費を「全体で入力」するとき
+  const modeSwitch = kind === 'variable' ? `
+    <div class="seg-ctl" role="group" aria-label="変動費の入れ方">
+      <button type="button" data-vmode="total" aria-pressed="${c.variableIsTotal}">全体で入力</button>
+      <button type="button" data-vmode="items" aria-pressed="${!c.variableIsTotal}">項目別に入力</button>
+    </div>` : '';
+  if (kind === 'variable' && c.variableIsTotal) {
+    const kept = items.length ? `<p class="help">項目別の内訳（${items.length}件）は消さずに残してあります。「項目別に入力」に戻すと、内訳の合計で計算します。</p>` : '';
+    $('#input-pane').innerHTML = `
+      <div class="pane-head"><h2>${cfg.step}. ${cfg.title}</h2></div>
+      ${modeSwitch}
+      <p class="pane-note">1か月の変動費を、項目に分けずに 1 つの金額で入れます。</p>
+      <div class="item">
+        <div class="row"><span class="grow vt-label">変動費予算（1か月の全体）</span>
+          <div class="amt-wrap"><input data-plan-f="variableTotal" inputmode="numeric" autocomplete="off" enterkeyhint="done" value="${fmtInputAmount(p.variableTotal)}" placeholder="0" aria-label="変動費予算（全体）"></div></div>
+        <div class="derived" data-derived-total>${totalDerivedHTML(c)}</div>
+      </div>
+      ${kept}
+      <div class="pane-foot">
+        <div id="pane-foot">${paneFootHTML(kind, c)}</div>
+        <div class="next-step">${nextHTML}</div>
+      </div>`;
+    renderInputTabs(c);
+    renderMiniSummary(c);
+    return;
+  }
+
   let extra = '';
   if (kind === 'variable') {
     const missing = cats().variable.filter((v) => !items.some((i) => i.category === v));
@@ -960,6 +1077,7 @@ function renderInputPane() {
   }
   $('#input-pane').innerHTML = `
     <div class="pane-head"><h2>${cfg.step}. ${cfg.title}</h2></div>
+    ${modeSwitch}
     <p class="pane-note">${cfg.note}スイッチを切ると、消さずに集計から外せます。</p>
     <div class="items" id="items">
       ${items.length ? items.map((it) => itemHTML(kind, it, c)).join('') : '<div class="empty">まだ項目がありません</div>'}
@@ -968,9 +1086,7 @@ function renderInputPane() {
       <button type="button" class="btn primary block" data-act="add">＋ ${cfg.add}</button>
       ${extra}
       <div id="pane-foot">${paneFootHTML(kind, c)}</div>
-      <div class="next-step">${next
-        ? `<button type="button" class="btn ghost" data-tab="${next}">次へ：${PANES[next].step}. ${PANES[next].title} →</button>`
-        : `<a class="btn ghost" href="#home">予備費を確認する →</a>`}</div>
+      <div class="next-step">${nextHTML}</div>
     </div>`;
   renderInputTabs(c);
   renderMiniSummary(c);
@@ -982,6 +1098,8 @@ function refreshInputTotals() {
   renderInputTabs(c);
   renderMiniSummary(c);
   $('#pane-foot').innerHTML = paneFootHTML(state.tab, c);
+  const totalEl = document.querySelector('[data-derived-total]');
+  if (totalEl) totalEl.innerHTML = totalDerivedHTML(c);
   if (state.tab === 'variable') {
     for (const it of plan().variable) {
       const el = document.querySelector(`.item[data-id="${CSS.escape(it.id)}"] [data-derived]`);
@@ -1001,6 +1119,13 @@ function setupInputEvents() {
   const pane = $('#input-pane');
 
   pane.addEventListener('input', (e) => {
+    if (e.target.dataset.planF === 'variableTotal') {
+      plan().variableTotal = toAmount(e.target.value);
+      plan().updatedAt = nowISO();
+      commit();
+      refreshInputTotals();
+      return;
+    }
     const f = e.target.dataset.f;
     const hit = f && findItem(e.target);
     if (!hit) return;
@@ -1013,6 +1138,14 @@ function setupInputEvents() {
   });
 
   pane.addEventListener('change', (e) => {
+    if (e.target.dataset.planF === 'variableTotal') {
+      plan().variableTotal = toAmount(e.target.value);
+      plan().updatedAt = nowISO();
+      e.target.value = fmtInputAmount(plan().variableTotal);
+      commit();
+      refreshInputTotals();
+      return;
+    }
     const f = e.target.dataset.f;
     const hit = f && findItem(e.target);
     if (!hit) return;
@@ -1030,15 +1163,10 @@ function setupInputEvents() {
     refreshInputTotals();
   });
 
-  // 金額欄: フォーカス時はカンマを外して編集しやすく
-  pane.addEventListener('focusin', (e) => {
-    if (e.target.dataset.f === 'amount') {
-      const v = toAmount(e.target.value);
-      e.target.value = v ? String(v) : '';
-    }
-  });
+  // 金額欄: 入力を終えたらカンマ区切りに整える
+  const isAmountInput = (el) => el.dataset.f === 'amount' || el.dataset.planF === 'variableTotal';
   pane.addEventListener('focusout', (e) => {
-    if (e.target.dataset.f === 'amount') e.target.value = fmtInputAmount(toAmount(e.target.value));
+    if (isAmountInput(e.target)) e.target.value = fmtInputAmount(toAmount(e.target.value));
   });
   pane.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.target.blur();
@@ -1050,6 +1178,17 @@ function setupInputEvents() {
     const kind = state.tab;
     const p = plan();
     if (btn.dataset.tab) { switchTab(btn.dataset.tab); return; }
+    if (btn.dataset.vmode) {
+      const mode = btn.dataset.vmode === 'total' ? 'total' : 'items';
+      if (p.variableMode === mode) return;
+      // 全体入力に切り替えたとき、まだ金額がなければ項目別の合計を初期値にする
+      if (mode === 'total' && !p.variableTotal) p.variableTotal = sumEnabled(p.variable);
+      p.variableMode = mode;
+      p.updatedAt = nowISO();
+      commit({ immediate: true });
+      renderInputPane();
+      return;
+    }
     if (btn.dataset.act === 'add') {
       const item = newItem(kind, defaultFieldsFor(kind));
       p[kind].push(item);
@@ -1101,6 +1240,7 @@ function defaultFieldsFor(kind) {
 function switchTab(tab) {
   if (!PLAN_KINDS.includes(tab)) return;
   state.tab = tab;
+  if (state.view === 'input') history.replaceState(null, '', '#input/' + tab);
   renderInputPane();
   window.scrollTo({ top: 0 });
 }
@@ -1285,8 +1425,10 @@ function renderAll() {
 }
 
 function applyRoute() {
-  const v = (location.hash || '#home').slice(1);
+  // #home / #input / #input/<収入|固定費…のキー> / #settings
+  const [v, sub] = (location.hash || '#home').slice(1).split('/');
   state.view = ['home', 'input', 'settings'].includes(v) ? v : 'home';
+  if (state.view === 'input' && PLAN_KINDS.includes(sub)) state.tab = sub;
   document.querySelectorAll('[data-view]').forEach((el) => el.classList.toggle('hidden', el.dataset.view !== state.view));
   document.querySelectorAll('[data-nav]').forEach((a) => {
     if (a.dataset.nav === state.view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
@@ -1308,7 +1450,10 @@ async function startApp() {
     alert('保存データを読み込めませんでした。初期状態で開きます。');
   }
   try {
+    const loadedVersion = raw ? raw.schemaVersion : SCHEMA_VERSION;
     state.data = raw ? normalizeData(raw) : createInitialData();
+    // 古い形式から変換したときは、すぐに新しい形式で保存し直す
+    if (loadedVersion !== SCHEMA_VERSION) await Storage.save(state.data);
   } catch (e) {
     console.error(e);
     alert('保存データの形式が正しくありません: ' + e.message);

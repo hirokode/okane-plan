@@ -31,17 +31,19 @@
 3. **データモデル** … `createInitialData()`、`newItem()`、`newPlan()`、`copyPlan()`、`toAmount()`、`migrate()`、`normalizeData()`
 4. **計算（純粋関数）** … `daysInMonth()`、`calcPlan()`、`calcVariableItem()`
 5. **画面** … ホーム（`renderHome`）、入力（`renderInputPane` ほか）、設定（`renderSettings` ほか）
+   - 画面の切り替えは URL のハッシュ: `#home` / `#input` / `#input/<income|fixed|savings|variable>` / `#settings`
+   - ホームは「＋ 入るお金」「− 出ていくお金・よけておくお金」「％ 割合」の 3 グループ。各行をタップすると `#input/<種類>` でその入力タブを開く
 6. **起動** … ロック確認 → `startApp()`
 
 画面のコードは `localStorage` を直接触らないこと。変更したら `commit()` を呼ぶ（`state.data.updatedAt` を更新し、少し待ってから `Storage.save()`）。項目を変更したら `touchItem(item)` で項目とプランの `updatedAt` も更新する。
 
-## データ形式（schemaVersion 1）
+## データ形式（schemaVersion 2）
 
 データ全体を 1 つの JSON として扱う。書き出し／読み込みもこの形のまま。
 
 ```jsonc
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "updatedAt": "2026-09-29T00:00:00.000Z",         // データ全体の最終更新（ISO 8601）
   "categoriesUpdatedAt": "2026-09-29T00:00:00.000Z",
   "categories": {
@@ -53,6 +55,8 @@
     "2026-09": {                                    // キーは対象月（yyyy-MM）
       "month": "2026-09",
       "createdAt": "…", "updatedAt": "…",
+      "variableMode": "items",                       // 変動費の入れ方: "items"（項目別）/ "total"（全体で1つの金額）
+      "variableTotal": 0,                            // "total" のときの変動費予算
       "income":   [{ "id": "uuid", "enabled": true, "category": "給与", "amount": 0, "memo": "", "updatedAt": "…" }],
       "fixed":    [{ "id": "uuid", "enabled": true, "name": "家賃", "amount": 0, "payDay": "27", "memo": "", "updatedAt": "…" }],
       "savings":  [{ "id": "uuid", "enabled": true, "type": "投資", "name": "NISA", "amount": 0, "memo": "", "updatedAt": "…" }],
@@ -64,13 +68,16 @@
 
 - 金額 `amount` は **0 以上の整数（円）の数値**。入力は全角数字・カンマ・¥ を許容し、`toAmount()` で数値化する
 - 対象月は `yyyy-MM` 文字列
+- `variableMode` が `"total"` の月は、変動費予算合計 ＝ `variableTotal`。項目別の `variable` 配列は消さずに残し、`"items"` に戻すとその合計で計算する。全体入力に切り替えたとき `variableTotal` が 0 なら、有効な項目の合計を初期値にする
+- 月のコピーでは `variableMode` と `variableTotal` も引き継ぐ
 - 支払日 `payDay` は文字列: `""`（未設定）/ `"1"`〜`"31"` / `"末"`（月末）
 - 日時は ISO 8601 文字列（UTC）
 - 各項目は一意の `id`（`crypto.randomUUID()`）と `updatedAt` を持つ。将来の端末間同期で突き合わせに使う
 - 月をコピーしたときは、項目の `id` と `updatedAt` を振り直す
 - カテゴリは名前の配列。項目はカテゴリを **名前で** 持つ。カテゴリを削除しても既存の項目はそのまま残り、選択肢に「（未登録）」付きで表示される
 - 項目の削除は今は物理削除。同期を入れるときは、削除の伝搬のために墓標（`deletedAt` など）を検討する
-- 形式を変えるときは `SCHEMA_VERSION` を上げ、`migrate()` に旧形式からの変換を足す。`normalizeData()` は読み込み時・インポート時に必ず通す
+- 形式を変えるときは `SCHEMA_VERSION` を上げ、`migrate()` に旧形式からの変換を足す。`normalizeData()` は読み込み時・インポート時に必ず通す。古い形式を読み込んだら、起動時にすぐ新しい形式で保存し直す
+- 変更履歴: v1 → v2 で `variableMode` / `variableTotal` を追加（v1 の月は `"items"`、`0` にする）
 
 ## 計算ルール
 
@@ -81,7 +88,7 @@
 | 収入合計 | 有効な収入の `amount` の合計 |
 | 固定費合計 | 有効な固定費の合計 |
 | 貯金合計 | 有効な貯金・投資の合計。種別ごとの小計も出す（マスタの順 → マスタにない種別 → 種別なし） |
-| 変動費予算合計 | 有効な変動費の合計 |
+| 変動費予算合計 | `variableMode` が `"total"` なら `variableTotal`、`"items"` なら有効な変動費の合計 |
 | 支出＋貯金 | 固定費合計 ＋ 変動費予算合計 ＋ 貯金合計 |
 | 予備費 | 収入合計 −（支出＋貯金） |
 | 貯蓄率 | 貯金合計 ÷ 収入合計（収入 0 なら「—」） |
@@ -94,6 +101,8 @@
 | 週あたり目安 | 月予算 × 12 ÷ 365 × 7 |
 | 1日あたり目安 | 月予算 ÷ 対象月の日数 |
 | 変動費内割合 | 月予算 ÷ 変動費予算合計（無効な項目や合計 0 のときは「—」） |
+
+変動費予算合計の週あたり・1日あたりも同じ式で出す（全体で入力したときも表示する）。
 
 表示は円単位で四捨五入、割合は小数 1 桁。
 
