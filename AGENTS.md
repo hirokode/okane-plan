@@ -35,6 +35,7 @@
 4. **計算（純粋関数）** … `daysInMonth()`、`calcPlan()`、`calcVariableItem()`
 5. **画面** … ホーム（`renderHome`）、入力（`renderInputPane` ほか）、設定（`renderSettings` ほか）
    - 画面の切り替えは URL のハッシュ: `#home` / `#input` / `#input/<income|fixed|savings|variable>` / `#settings`
+   - 設定のカテゴリは、左のつまみ（≡）を押さえてドラッグで並べ替える（`setupCategoryDrag()`、Pointer Events で指・マウス共通。画面端で自動スクロール。つまみにフォーカスして上下キーでも動かせる）
    - ホームは「＋ 入るお金」「− 出ていくお金・よけておくお金」「％ 割合」の 3 グループ。各行をタップすると `#input/<種類>` でその入力タブを開く
 6. **起動** … ロック確認 → `startApp()`
 

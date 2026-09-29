@@ -303,7 +303,18 @@ a.lrow:active, a.leg-row:active { background: var(--surface-2); }
 
 /* ===== 設定 ===== */
 .cat-list { list-style: none; margin: 0 0 10px; padding: 0; }
-.cat-list li { display: flex; align-items: center; gap: 2px; padding: 2px 0 2px 6px; border-bottom: 1px solid var(--border); }
+.cat-list li {
+  position: relative; display: flex; align-items: center; gap: 2px; padding: 2px 0;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  transition: transform .2s cubic-bezier(.2, .8, .2, 1), box-shadow .2s;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+.cat-list li.dragging { z-index: 5; transition: box-shadow .2s; border-radius: 10px; border-bottom-color: transparent; box-shadow: 0 8px 24px rgba(0,0,0,.18), 0 0 0 1px var(--border); }
+.cat-list li.dropping { z-index: 5; transition: transform .2s cubic-bezier(.2, .8, .2, 1), box-shadow .2s; }
+.drag-handle { flex: none; width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: transparent; color: var(--text-3); cursor: grab; touch-action: none; }
+.drag-handle svg { width: 20px; height: 20px; }
+.drag-handle:focus-visible { outline: 2px solid var(--accent); }
+.cat-list li.dragging .drag-handle { cursor: grabbing; color: var(--accent); }
 .cat-list li .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .inline-form { display: flex; gap: 8px; }
 .inline-form input { flex: 1; }
@@ -1285,11 +1296,14 @@ function renderSettings() {
       <details class="card" data-cat="${key}">
         <summary>${CAT_LABELS[key]} <span class="muted" style="font-weight:500;font-size:13px;margin-left:auto;margin-right:8px">${list.length}件</span></summary>
         <ul class="cat-list">
-          ${list.map((name, i) => `<li><span class="name">${esc(name)}</span>
-            <button type="button" class="icon-btn" data-cat-act="up" data-i="${i}" ${i === 0 ? 'disabled' : ''} aria-label="${esc(name)} を上へ">↑</button>
-            <button type="button" class="icon-btn" data-cat-act="down" data-i="${i}" ${i === list.length - 1 ? 'disabled' : ''} aria-label="${esc(name)} を下へ">↓</button>
+          ${list.map((name, i) => `<li data-i="${i}">
+            <button type="button" class="drag-handle" data-i="${i}" aria-label="${esc(name)} を並べ替え（ドラッグ、または上下キー）">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><rect x="3" y="5" width="14" height="2" rx="1"/><rect x="3" y="9" width="14" height="2" rx="1"/><rect x="3" y="13" width="14" height="2" rx="1"/></svg>
+            </button>
+            <span class="name">${esc(name)}</span>
             <button type="button" class="icon-btn" data-cat-act="del" data-i="${i}" aria-label="${esc(name)} を削除">×</button></li>`).join('')}
         </ul>
+        <p class="help">左の ≡ を押さえたまま上下に動かすと、並べ替えられます。</p>
         <form class="inline-form" data-cat-form="${key}">
           <input name="name" placeholder="新しいカテゴリ名" aria-label="新しいカテゴリ名" autocomplete="off" maxlength="40">
           <button class="btn" type="submit">追加</button>
@@ -1324,8 +1338,114 @@ function renderSettings() {
     <p class="help" style="text-align:center;margin-top:20px">お金計画 · schemaVersion ${SCHEMA_VERSION}</p>`;
 }
 
+/** カテゴリを from 番目から to 番目へ移す */
+function moveCategory(key, from, to) {
+  const list = cats()[key];
+  if (from === to || to < 0 || to >= list.length) return false;
+  list.splice(to, 0, list.splice(from, 1)[0]);
+  categoriesChanged();
+  return true;
+}
+
+/** カテゴリ一覧のドラッグ並べ替え（指・マウス共通、Pointer Events） */
+function setupCategoryDrag(root) {
+  root.addEventListener('pointerdown', (e) => {
+    const handle = e.target.closest('.drag-handle');
+    if (!handle || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    e.preventDefault();
+    const li = handle.closest('li');
+    const ul = li.parentElement;
+    const key = ul.closest('[data-cat]').dataset.cat;
+    const rows = [...ul.children];
+    const from = rows.indexOf(li);
+    const rects = rows.map((el) => el.getBoundingClientRect());
+    const h = rects[from].height;
+    const startY = e.clientY;
+    const startScroll = window.scrollY;
+    let lastY = e.clientY;
+    let to = from;
+    let raf = 0;
+
+    li.classList.add('dragging');
+    try { handle.setPointerCapture(e.pointerId); } catch (_) { /* noop */ }
+
+    const layout = () => {
+      // 指の動き＋スクロール量のぶんだけ、つかんだ行を動かす
+      const dy = lastY - startY + (window.scrollY - startScroll);
+      li.style.transform = `translateY(${dy}px)`;
+      const center = rects[from].top + h / 2 + dy;
+      let t = from;
+      for (let i = 0; i < rows.length; i++) {
+        const mid = rects[i].top + rects[i].height / 2;
+        if (i < from && center < mid) { t = i; break; }
+      }
+      for (let i = from + 1; i < rows.length; i++) {
+        const mid = rects[i].top + rects[i].height / 2;
+        if (center > mid) t = i;
+      }
+      to = t;
+      // ほかの行は、つかんだ行のぶんだけ上下にずらす（CSS の transition でなめらかに動く）
+      rows.forEach((el, i) => {
+        if (i === from) return;
+        let shift = 0;
+        if (from < to && i > from && i <= to) shift = -h;
+        if (from > to && i >= to && i < from) shift = h;
+        el.style.transform = shift ? `translateY(${shift}px)` : '';
+      });
+    };
+
+    // 画面の端に近づいたら自動でスクロール
+    const tick = () => {
+      const top = 80;
+      const bottom = window.innerHeight - 110;
+      let v = 0;
+      if (lastY < top) v = -Math.ceil((top - lastY) / 6);
+      else if (lastY > bottom) v = Math.ceil((lastY - bottom) / 6);
+      if (v) { window.scrollBy(0, v); layout(); }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    const onMove = (ev) => { if (ev.pointerId !== e.pointerId) return; ev.preventDefault(); lastY = ev.clientY; layout(); };
+    const onEnd = (ev) => {
+      if (ev.pointerId !== e.pointerId) return;
+      cancelAnimationFrame(raf);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onEnd);
+      window.removeEventListener('pointercancel', onEnd);
+      // 落とす位置まで吸い付くように動かしてから確定
+      const target = to > from ? rects[to].bottom - h - rects[from].top : rects[to].top - rects[from].top;
+      li.classList.remove('dragging');
+      li.classList.add('dropping');
+      li.style.transform = `translateY(${target}px)`;
+      setTimeout(() => {
+        if (moveCategory(key, from, to)) renderSettingsKeepOpen(key);
+        else { rows.forEach((el) => { el.style.transform = ''; }); li.classList.remove('dropping'); }
+      }, 200);
+    };
+    window.addEventListener('pointermove', onMove, { passive: false });
+    window.addEventListener('pointerup', onEnd);
+    window.addEventListener('pointercancel', onEnd);
+  });
+
+  // キーボードでも並べ替えられるように（つまみにフォーカスして上下キー）
+  root.addEventListener('keydown', (e) => {
+    const handle = e.target.closest('.drag-handle');
+    if (!handle || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+    e.preventDefault();
+    const key = handle.closest('[data-cat]').dataset.cat;
+    const from = Number(handle.dataset.i);
+    const to = from + (e.key === 'ArrowUp' ? -1 : 1);
+    if (!moveCategory(key, from, to)) return;
+    renderSettingsKeepOpen(key);
+    const next = $(`#view-settings [data-cat="${key}"] .drag-handle[data-i="${to}"]`);
+    if (next) next.focus();
+  });
+}
+
 function setupSettingsEvents() {
   const root = $('#view-settings');
+  setupCategoryDrag(root);
 
   root.addEventListener('submit', (e) => {
     const form = e.target.closest('[data-cat-form]');
@@ -1351,9 +1471,7 @@ function setupSettingsEvents() {
       const key = btn.closest('[data-cat]').dataset.cat;
       const list = cats()[key];
       const i = Number(btn.dataset.i);
-      if (catAct === 'up' && i > 0) [list[i - 1], list[i]] = [list[i], list[i - 1]];
-      else if (catAct === 'down' && i < list.length - 1) [list[i + 1], list[i]] = [list[i], list[i + 1]];
-      else if (catAct === 'del') {
+      if (catAct === 'del') {
         if (!confirm(`カテゴリ「${list[i]}」を削除しますか？`)) return;
         list.splice(i, 1);
       } else return;
