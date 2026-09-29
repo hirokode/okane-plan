@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161615" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="お金計画">
+<title>お金計画</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232a78d6'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='sans-serif'%3E¥%3C/text%3E%3C/svg%3E">
+<style>
+/* ===== テーマ（色はすべてここで定義） ===== */
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #f0efeb;
+  --border: #e2e0da;
+  --text: #1b1b1a;
+  --text-2: #52514e;
+  --text-3: #7a7973;
+  --accent: #2a78d6;
+  --accent-ink: #ffffff;
+  --danger: #c62f2f;
+  --danger-bg: #fdecec;
+  --danger-border: #f3c4c4;
+  --ok: #0f7a2e;
+  --ok-bg: #e9f6ec;
+  --series-fixed: #2a78d6;
+  --series-variable: #eb6834;
+  --series-savings: #1baf7a;
+  --series-reserve: #cfcdc6;
+  --switch-off: #cfcdc6;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 1px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #161615;
+    --surface: #1f1f1e;
+    --surface-2: #2a2a28;
+    --border: #363633;
+    --text: #f3f2ee;
+    --text-2: #c3c2b7;
+    --text-3: #93928a;
+    --accent: #3987e5;
+    --accent-ink: #ffffff;
+    --danger: #f07171;
+    --danger-bg: #3a1f1f;
+    --danger-border: #5c2c2c;
+    --ok: #5cc978;
+    --ok-bg: #1b2e20;
+    --series-fixed: #3987e5;
+    --series-variable: #d95926;
+    --series-savings: #199e70;
+    --series-reserve: #4a4a46;
+    --switch-off: #4a4a46;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #161615;
+  --surface: #1f1f1e;
+  --surface-2: #2a2a28;
+  --border: #363633;
+  --text: #f3f2ee;
+  --text-2: #c3c2b7;
+  --text-3: #93928a;
+  --accent: #3987e5;
+  --accent-ink: #ffffff;
+  --danger: #f07171;
+  --danger-bg: #3a1f1f;
+  --danger-border: #5c2c2c;
+  --ok: #5cc978;
+  --ok-bg: #1b2e20;
+  --series-fixed: #3987e5;
+  --series-variable: #d95926;
+  --series-savings: #199e70;
+  --series-reserve: #4a4a46;
+  --switch-off: #4a4a46;
+  --shadow: none;
+}
+
+/* ===== ベース ===== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-tap-highlight-color: transparent;
+}
+/* iOS の自動拡大を防ぐため、入力欄は必ず 16px 以上 */
+input, select, textarea, button { font: inherit; font-size: 16px; color: inherit; }
+input, select, textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+select { appearance: none; -webkit-appearance: none; padding-right: 28px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-3) 50%), linear-gradient(135deg, var(--text-3) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%;
+  background-size: 5px 5px; background-repeat: no-repeat; }
+button { cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; }
+.hidden { display: none !important; }
+.muted { color: var(--text-3); }
+h1, h2, h3 { margin: 0; line-height: 1.3; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 8px 16px;
+  border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text);
+  font-weight: 600; text-decoration: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.danger { color: var(--danger); border-color: var(--danger-border); }
+.btn.ghost { background: transparent; }
+.btn.block { width: 100%; }
+.btn.small { min-height: 36px; padding: 4px 12px; font-size: 14px; }
+.icon-btn {
+  flex: none; width: 40px; height: 40px; min-height: 40px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--text-3);
+  font-size: 20px; line-height: 1;
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--text); }
+.icon-btn:disabled { opacity: .3; cursor: default; }
+
+/* ===== レイアウト ===== */
+.app { max-width: 720px; margin: 0 auto; padding: 0 16px calc(96px + env(safe-area-inset-bottom)); }
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  margin: 0 -16px; padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.topbar .brand { font-weight: 700; font-size: 16px; white-space: nowrap; margin-right: auto; }
+.topbar select { width: auto; max-width: 11em; font-weight: 600; }
+.view { padding-top: 16px; }
+.section-title { font-size: 13px; font-weight: 700; color: var(--text-2); letter-spacing: .04em; margin: 24px 4px 8px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+.card + .card { margin-top: 12px; }
+
+.bottomnav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: flex; justify-content: center;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bottomnav .inner { display: flex; width: 100%; max-width: 720px; }
+.bottomnav a {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 0 10px; text-decoration: none; color: var(--text-3); font-size: 12px; font-weight: 600;
+}
+.bottomnav a svg { width: 24px; height: 24px; }
+.bottomnav a[aria-current="page"] { color: var(--accent); }
+
+/* ===== ホーム ===== */
+.hero-label { font-size: 13px; color: var(--text-2); font-weight: 600; }
+.hero-value { font-size: 40px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin: 2px 0 6px; }
+.hero.is-negative .hero-value { color: var(--danger); }
+.status {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5;
+}
+.status .ico { flex: none; font-size: 18px; line-height: 1.2; }
+.status.bad { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.status.bad strong { color: var(--danger); }
+.status.good { background: var(--ok-bg); color: var(--ok); }
+.status .btn { margin-top: 8px; }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 560px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow); }
+.stat .k { font-size: 12px; color: var(--text-2); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.stat .v { font-size: 20px; font-weight: 750; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat .s { font-size: 12px; color: var(--text-3); }
+.stat.is-negative .v { color: var(--danger); }
+.swatch { flex: none; width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+/* 配分バー */
+.alloc-bar-wrap { position: relative; margin: 4px 0; }
+.alloc-bar-wrap.is-over { padding-top: 24px; }
+.alloc-bar { display: flex; gap: 2px; height: 28px; border-radius: 8px; overflow: hidden; background: var(--surface-2); }
+.alloc-bar .seg { height: 100%; min-width: 0; }
+.alloc-bar .seg:first-child { border-radius: 8px 0 0 8px; }
+.alloc-bar .seg:last-child { border-radius: 0 8px 8px 0; }
+.alloc-over {
+  position: absolute; top: 24px; bottom: 0; right: 0; border-radius: 0 8px 8px 0; pointer-events: none;
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--danger) 55%, transparent) 0 3px, transparent 3px 7px);
+  outline: 2px solid var(--danger); outline-offset: -2px;
+}
+.alloc-marker { position: absolute; top: 20px; bottom: -4px; width: 2px; background: var(--text); transform: translateX(-1px); }
+.alloc-marker span { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 700; white-space: nowrap; color: var(--text); }
+.alloc-marker.at-start span { left: 0; transform: none; }
+.alloc-marker.at-end span { left: auto; right: 0; transform: none; }
+.alloc-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); }
+.legend { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+.legend td { padding: 7px 0; border-top: 1px solid var(--border); }
+.legend .lbl { display: inline-flex; align-items: center; gap: 8px; }
+.legend td.r { text-align: right; white-space: nowrap; padding-left: 12px; }
+.legend tr.neg td { color: var(--danger); font-weight: 700; }
+.subtypes { margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.subtypes li { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--border); }
+.subtypes li:first-child { border-top: 0; }
+
+/* ===== 入力 ===== */
+.mini-summary {
+  position: sticky; top: calc(65px + env(safe-area-inset-top)); z-index: 10;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 8px 10px; box-shadow: var(--shadow); font-size: 12px;
+}
+.mini-summary div { min-width: 0; }
+.mini-summary .k { color: var(--text-2); font-weight: 600; }
+.mini-summary .v { font-size: 15px; font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-summary.is-negative { border-color: var(--danger); background: var(--danger-bg); }
+.mini-summary.is-negative .reserve .v, .mini-summary.is-negative .reserve .k { color: var(--danger); }
+.tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 14px 0 12px; }
+.tab {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  padding: 6px 2px; min-height: 52px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
+  font-size: 13px; font-weight: 700; line-height: 1.3;
+}
+.tab .n { font-size: 11px; font-weight: 600; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.tab[aria-selected="true"] .n { color: color-mix(in srgb, var(--accent-ink) 85%, transparent); }
+.pane-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 4px 4px 8px; }
+.pane-head h2 { font-size: 18px; }
+.pane-note { font-size: 13px; color: var(--text-3); margin: -4px 4px 10px; }
+.items { display: flex; flex-direction: column; gap: 10px; }
+.item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 10px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
+.item.is-off { background: var(--surface-2); box-shadow: none; }
+.item.is-off .fade { opacity: .5; }
+.row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.row > .grow { flex: 1 1 auto; min-width: 0; }
+.amt-wrap { position: relative; flex: 0 0 8.2em; }
+.amt-wrap::before { content: "¥"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
+.amt-wrap input { padding-left: 24px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; }
+.payday { flex: 0 0 6.2em; }
+@media (max-width: 370px) { .amt-wrap { flex-basis: 7em; } .payday { flex-basis: 5.6em; } }
+.stype { flex: 0 0 7.4em; }
+.derived { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--text-2); padding: 0 4px; }
+.derived b { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.sw { position: relative; flex: none; width: 46px; height: 28px; display: inline-block; }
+.sw input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; min-height: 0; cursor: pointer; z-index: 1; }
+.sw span { position: absolute; inset: 0; border-radius: 99px; background: var(--switch-off); transition: background .15s; }
+.sw span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s; }
+.sw input:checked + span { background: var(--ok); }
+.sw input:checked + span::after { transform: translateX(18px); }
+.sw input:focus-visible + span { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+.pane-foot { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.total-row { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); font-weight: 700; }
+.total-row .v { font-size: 18px; }
+.total-sub { font-size: 13px; color: var(--text-2); padding: 0 14px; display: flex; flex-wrap: wrap; gap: 2px 14px; }
+.empty { text-align: center; color: var(--text-3); padding: 20px 8px; font-size: 14px; border: 1px dashed var(--border); border-radius: 14px; }
+.next-step { display: flex; justify-content: flex-end; }
+
+/* ===== 設定 ===== */
+.cat-list { list-style: none; margin: 0 0 10px; padding: 0; }
+.cat-list li { display: flex; align-items: center; gap: 2px; padding: 2px 0 2px 6px; border-bottom: 1px solid var(--border); }
+.cat-list li .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inline-form { display: flex; gap: 8px; }
+.inline-form input { flex: 1; }
+.settings-actions { display: flex; flex-direction: column; gap: 10px; }
+.help { font-size: 13px; color: var(--text-3); margin: 6px 0 0; }
+details.card > summary { cursor: pointer; font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center; min-height: 28px; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary::after { content: "＋"; color: var(--text-3); }
+details.card[open] > summary::after { content: "－"; }
+details.card[open] > summary { margin-bottom: 10px; }
+
+/* ===== モーダル / ロック / トースト ===== */
+.overlay {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(0,0,0,.4); padding: 16px;
+}
+@media (min-width: 560px) { .overlay { align-items: center; } }
+.sheet { width: 100%; max-width: 440px; background: var(--surface); border-radius: 18px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,.25); margin-bottom: env(safe-area-inset-bottom); }
+.sheet h2 { font-size: 18px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.field > span { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.field-row { display: flex; gap: 8px; }
+.sheet-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.error-text { color: var(--danger); font-size: 13px; min-height: 1.4em; margin: 4px 0 0; }
+
+.lock { position: fixed; inset: 0; z-index: 100; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.lock .box { width: 100%; max-width: 360px; text-align: center; }
+.lock .logo { width: 64px; height: 64px; border-radius: 16px; background: var(--accent); color: #fff; font-size: 34px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.lock h1 { font-size: 22px; margin-bottom: 6px; }
+.lock p { color: var(--text-2); margin: 0 0 18px; font-size: 14px; }
+.lock form { display: flex; flex-direction: column; gap: 10px; }
+.lock input { text-align: center; font-size: 20px; letter-spacing: .2em; }
+.shake { animation: shake .35s; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  z-index: 60; background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 99px;
+  font-size: 14px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,.2); max-width: calc(100% - 32px);
+}
+</style>
+</head>
+<body>
+
+<!-- ロック画面（初回のみ） -->
+<div id="lock" class="lock hidden" role="dialog" aria-modal="true" aria-labelledby="lock-title">
+  <div class="box">
+    <div class="logo" aria-hidden="true">¥</div>
+    <h1 id="lock-title">お金計画</h1>
+    <p>この端末で初めて開くときだけ、パスコードが必要です。</p>
+    <form id="lock-form" autocomplete="off">
+      <input id="lock-input" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="パスコード" aria-label="パスコード" required>
+      <button class="btn primary block" type="submit">開く</button>
+      <p id="lock-error" class="error-text" role="alert"></p>
+    </form>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <header class="topbar">
+    <div class="brand">お金計画</div>
+    <select id="month-select" aria-label="対象月"></select>
+    <button id="new-month-btn" class="btn small" type="button" aria-label="新しい月を作成">＋月</button>
+  </header>
+
+  <!-- ホーム -->
+  <main id="view-home" class="view" data-view="home"></main>
+
+  <!-- 入力 -->
+  <main id="view-input" class="view hidden" data-view="input">
+    <div id="mini-summary" class="mini-summary" aria-live="polite"></div>
+    <div class="tabs" role="tablist" id="input-tabs"></div>
+    <section id="input-pane" role="tabpanel"></section>
+  </main>
+
+  <!-- 設定 -->
+  <main id="view-settings" class="view hidden" data-view="settings"></main>
+</div>
+
+<nav id="bottomnav" class="bottomnav hidden" aria-label="画面の切り替え">
+  <div class="inner">
+    <a href="#home" data-nav="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+      ホーム
+    </a>
+    <a href="#input" data-nav="input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>
+      入力
+    </a>
+    <a href="#settings" data-nav="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      設定
+    </a>
+  </div>
+</nav>
+
+<div id="modal-root"></div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+<input id="import-file" type="file" accept="application/json,.json" class="hidden">
+
+<script>
+'use strict';
+
+/* =====================================================================
+ * 設定
+ * ===================================================================== */
+
+// パスコードの SHA-256 ハッシュ（16進数・小文字）。パスコードそのものは書かない。
+// 作り方は README.md の「パスコードの設定」を参照。
+const PASSCODE_HASH = '42f0fa5ac5135466b793a54d3d9029212ad9948b616bb201e0dd4ce9edc522bd';
+
+const SCHEMA_VERSION = 1;
+const PLAN_KINDS = ['income', 'fixed', 'savings', 'variable'];
+const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+// 初期カテゴリ（金額や個人の項目は入れない）
+const DEFAULT_CATEGORIES = {
+  income: ['給与', '副業', '賞与', '臨時収入', 'その他収入'],
+  variable: ['飲み代', '外食費', '旅費', 'いろいろ', '食費', '日用品', '交通費', '美容', '医療', '娯楽', '服飾', 'プレゼント', '学習', '趣味', 'その他'],
+  savingsType: ['現金', '投資', '持ち株会'],
+};
+const CATEGORY_KEYS = Object.keys(DEFAULT_CATEGORIES);
+
+// 各項目の種類ごとのフィールドと既定値
+const ITEM_FIELDS = {
+  income:   { category: '', amount: 0, memo: '' },
+  fixed:    { name: '', amount: 0, payDay: '', memo: '' },
+  savings:  { type: '', name: '', amount: 0, memo: '' },
+  variable: { category: '', amount: 0, memo: '' },
+};
+
+/* =====================================================================
+ * ストレージ層
+ * localStorage に触れるのはこのブロックだけ。
+ * 保存先を GAS（Google スプレッドシート）に切り替えるときは Storage を差し替える。
+ * load() / save() は Promise を返す（将来の非同期通信に合わせるため）。
+ * ===================================================================== */
+const Storage = (() => {
+  const DATA_KEY = 'okanePlan:data';
+  const UNLOCK_KEY = 'okanePlan:unlockedHash';
+
+  function safeGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+  return {
+    /** データ全体（JSON）を読み込む。未保存なら null。 */
+    async load() {
+      const raw = safeGet(DATA_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    },
+    /** データ全体（JSON）を保存する。 */
+    async save(data) {
+      localStorage.setItem(DATA_KEY, JSON.stringify(data));
+    },
+    /** データ全体を削除する。 */
+    async clear() {
+      localStorage.removeItem(DATA_KEY);
+    },
+
+    // --- 端末ごとのロック解除フラグ（同期しない） ---
+    /** 解除済みとして記録されたハッシュが、現在のハッシュと一致するか */
+    isUnlocked(hash) { return safeGet(UNLOCK_KEY) === hash; },
+    setUnlocked(hash) { try { localStorage.setItem(UNLOCK_KEY, hash); } catch (e) { /* 保存できなくても今回は開く */ } },
+    clearUnlock() { try { localStorage.removeItem(UNLOCK_KEY); } catch (e) { /* noop */ } },
+  };
+})();
+
+/* =====================================================================
+ * データモデル
+ * ===================================================================== */
+const nowISO = () => new Date().toISOString();
+const clone = (v) => JSON.parse(JSON.stringify(v));
+
+function newId() {
+  if (window.crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+}
+
+function createInitialData() {
+  const t = nowISO();
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    updatedAt: t,
+    categoriesUpdatedAt: t,
+    categories: clone(DEFAULT_CATEGORIES),
+    plans: {},
+  };
+}
+
+function newItem(kind, fields) {
+  return { id: newId(), enabled: true, ...clone(ITEM_FIELDS[kind]), ...(fields || {}), updatedAt: nowISO() };
+}
+
+function newPlan(month) {
+  const t = nowISO();
+  return { month, createdAt: t, updatedAt: t, income: [], fixed: [], savings: [], variable: [] };
+}
+
+/** 既存の月をコピーして新しい月を作る（ID と更新日時は振り直す） */
+function copyPlan(src, month) {
+  const p = newPlan(month);
+  for (const kind of PLAN_KINDS) {
+    p[kind] = (src[kind] || []).map((it) => ({ ...clone(it), id: newId(), updatedAt: p.createdAt }));
+  }
+  return p;
+}
+
+/** 金額を数値（0 以上の整数）に変換。全角数字・カンマ・¥ を許容。 */
+function toAmount(v) {
+  if (typeof v === 'number') return Number.isFinite(v) ? Math.max(0, Math.round(v)) : 0;
+  const s = String(v == null ? '' : v)
+    .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+    .replace(/[^0-9]/g, '');
+  return s ? Math.min(Number(s), 999999999999) : 0;
+}
+
+/** 古い schemaVersion のデータを最新に変換する（今は v1 のみ） */
+function migrate(d) {
+  const v = Number(d.schemaVersion || 1);
+  if (v > SCHEMA_VERSION) throw new Error('このアプリより新しい形式のデータです（schemaVersion ' + v + '）');
+  // 例: if (v < 2) { ...v1→v2 の変換...; d.schemaVersion = 2; }
+  return d;
+}
+
+/** 読み込んだデータを検証・補完して、正しい形に揃える */
+function normalizeData(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('データの形式が正しくありません');
+  const d = migrate(raw);
+  const str = (v) => (typeof v === 'string' ? v : '');
+  const out = {
+    schemaVersion: SCHEMA_VERSION,
+    updatedAt: str(d.updatedAt) || nowISO(),
+    categoriesUpdatedAt: str(d.categoriesUpdatedAt) || str(d.updatedAt) || nowISO(),
+    categories: {},
+    plans: {},
+  };
+  const cats = d.categories || {};
+  for (const key of CATEGORY_KEYS) {
+    out.categories[key] = Array.isArray(cats[key])
+      ? [...new Set(cats[key].map((c) => String(c).trim()).filter(Boolean))]
+      : clone(DEFAULT_CATEGORIES[key]);
+  }
+  const plans = d.plans && typeof d.plans === 'object' ? d.plans : {};
+  for (const [month, p] of Object.entries(plans)) {
+    if (!MONTH_RE.test(month) || !p || typeof p !== 'object') continue;
+    const plan = {
+      month,
+      createdAt: str(p.createdAt) || nowISO(),
+      updatedAt: str(p.updatedAt) || nowISO(),
+    };
+    for (const kind of PLAN_KINDS) {
+      plan[kind] = (Array.isArray(p[kind]) ? p[kind] : []).filter((it) => it && typeof it === 'object').map((it) => {
+        const item = { id: str(it.id) || newId(), enabled: it.enabled !== false };
+        for (const [f, def] of Object.entries(ITEM_FIELDS[kind])) {
+          item[f] = typeof def === 'number' ? toAmount(it[f]) : (it[f] == null ? '' : String(it[f]));
+        }
+        item.updatedAt = str(it.updatedAt) || nowISO();
+        return item;
+      });
+    }
+    out.plans[month] = plan;
+  }
+  return out;
+}
+
+/* =====================================================================
+ * 計算（純粋関数）
+ * ===================================================================== */
+function daysInMonth(month) {
+  const [y, m] = month.split('-').map(Number);
+  return new Date(y, m, 0).getDate();
+}
+
+const sumEnabled = (items) => items.reduce((s, it) => s + (it.enabled ? toAmount(it.amount) : 0), 0);
+
+function calcPlan(plan, savingsTypes) {
+  const income = sumEnabled(plan.income);
+  const fixed = sumEnabled(plan.fixed);
+  const savings = sumEnabled(plan.savings);
+  const variable = sumEnabled(plan.variable);
+  const spendAndSave = fixed + variable + savings; // 支出＋貯金
+  const reserve = income - spendAndSave;           // 予備費
+  const ratio = (v) => (income > 0 ? v / income : null);
+
+  // 貯金の種別ごとの小計（マスタの順 → マスタ外の種別）
+  const types = [...(savingsTypes || [])];
+  for (const it of plan.savings) if (it.type && !types.includes(it.type)) types.push(it.type);
+  const savingsByType = types.map((type) => ({
+    type,
+    amount: plan.savings.filter((it) => it.enabled && it.type === type).reduce((s, it) => s + toAmount(it.amount), 0),
+  }));
+  const untyped = plan.savings.filter((it) => it.enabled && !it.type).reduce((s, it) => s + toAmount(it.amount), 0);
+  if (untyped) savingsByType.push({ type: '（種別なし）', amount: untyped });
+
+  return {
+    income, fixed, savings, variable, spendAndSave, reserve,
+    savingsRate: ratio(savings),
+    share: { fixed: ratio(fixed), variable: ratio(variable), savings: ratio(savings), reserve: ratio(reserve) },
+    savingsByType,
+    days: daysInMonth(plan.month),
+  };
+}
+
+/** 変動費の自動計算（週あたり・1日あたり・変動費内割合） */
+function calcVariableItem(item, days, variableTotal) {
+  const a = toAmount(item.amount);
+  return {
+    weekly: a * 12 / 365 * 7,
+    daily: a / days,
+    share: item.enabled && variableTotal > 0 ? a / variableTotal : null,
+  };
+}
+
+/* =====================================================================
+ * 表示用ヘルパー
+ * ===================================================================== */
+const $ = (sel, root = document) => root.querySelector(sel);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nf = new Intl.NumberFormat('ja-JP', { maximumFractionDigits: 0 });
+const yen = (n) => (n < 0 ? '−¥' : '¥') + nf.format(Math.abs(Math.round(n)));
+const pct = (r) => (r == null || !Number.isFinite(r) ? '—' : (r * 100).toFixed(1) + '%');
+const fmtInputAmount = (n) => (n ? nf.format(n) : '');
+const monthLabel = (m) => { const [y, mo] = m.split('-'); return `${y}年${Number(mo)}月`; };
+const monthKey = (y, m) => `${y}-${String(m).padStart(2, '0')}`;
+const currentMonthKey = () => { const d = new Date(); return monthKey(d.getFullYear(), d.getMonth() + 1); };
+
+let toastTimer = null;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 2400);
+}
+
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* =====================================================================
+ * アプリの状態
+ * ===================================================================== */
+const state = {
+  data: null,
+  month: null,
+  view: 'home',
+  tab: 'income',
+};
+const plan = () => state.data.plans[state.month];
+const cats = () => state.data.categories;
+
+// --- 保存（入力中は少し待ってまとめて保存） ---
+let saveTimer = null;
+function commit({ immediate = false } = {}) {
+  state.data.updatedAt = nowISO();
+  clearTimeout(saveTimer);
+  if (immediate) flushSave();
+  else saveTimer = setTimeout(flushSave, 300);
+}
+async function flushSave() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  try {
+    await Storage.save(state.data);
+  } catch (e) {
+    console.error(e);
+    toast('保存できませんでした（ブラウザの保存領域を確認してください）');
+  }
+}
+function touchItem(item) {
+  item.updatedAt = nowISO();
+  plan().updatedAt = item.updatedAt;
+}
+
+/* =====================================================================
+ * 月の扱い
+ * ===================================================================== */
+function sortedMonths() { return Object.keys(state.data.plans).sort(); }
+
+function pickDefaultMonth() {
+  const months = sortedMonths();
+  const cur = currentMonthKey();
+  if (months.includes(cur)) return cur;
+  const past = months.filter((m) => m < cur);
+  return past.length ? past[past.length - 1] : months[months.length - 1];
+}
+
+function ensureAnyPlan() {
+  if (!sortedMonths().length) {
+    const m = currentMonthKey();
+    state.data.plans[m] = newPlan(m);
+    commit({ immediate: true });
+  }
+}
+
+function renderMonthSelect() {
+  const sel = $('#month-select');
+  sel.innerHTML = sortedMonths().slice().reverse()
+    .map((m) => `<option value="${m}" ${m === state.month ? 'selected' : ''}>${monthLabel(m)}</option>`).join('');
+}
+
+function setMonth(m) {
+  state.month = m;
+  renderMonthSelect();
+  renderAll();
+}
+
+function openNewMonthDialog() {
+  const months = sortedMonths();
+  const latest = months[months.length - 1] || currentMonthKey();
+  let [y, m] = latest.split('-').map(Number);
+  if (months.length) { m += 1; if (m > 12) { m = 1; y += 1; } }
+  const thisYear = new Date().getFullYear();
+  const years = [];
+  for (let i = Math.min(thisYear - 2, y - 1); i <= Math.max(thisYear + 3, y + 1); i++) years.push(i);
+
+  const html = `
+    <div class="overlay" data-close>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="nm-title">
+        <h2 id="nm-title">新しい月を作成</h2>
+        <form id="nm-form">
+          <div class="field"><span>対象月</span>
+            <div class="field-row">
+              <select id="nm-year" aria-label="年">${years.map((v) => `<option value="${v}" ${v === y ? 'selected' : ''}>${v}年</option>`).join('')}</select>
+              <select id="nm-month" aria-label="月">${Array.from({ length: 12 }, (_, i) => i + 1).map((v) => `<option value="${v}" ${v === m ? 'selected' : ''}>${v}月</option>`).join('')}</select>
+            </div>
+          </div>
+          <div class="field"><span>作り方</span>
+            <select id="nm-source">
+              ${months.slice().reverse().map((mm) => `<option value="${mm}">${monthLabel(mm)} をコピー</option>`).join('')}
+              <option value="">空の計画から始める</option>
+            </select>
+          </div>
+          <p class="help">コピーすると、収入・固定費・貯金投資・変動費の項目と金額をそのまま引き継ぎます。</p>
+          <p id="nm-error" class="error-text" role="alert"></p>
+          <div class="sheet-actions">
+            <button type="button" class="btn ghost" data-close>キャンセル</button>
+            <button type="submit" class="btn primary">作成</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+  const root = openModal(html);
+  const syncSource = () => {
+    // 作成する月より前で一番新しい月をコピー元の既定にする
+    const target = monthKey($('#nm-year', root).value, $('#nm-month', root).value);
+    const before = months.filter((mm) => mm < target);
+    const src = $('#nm-source', root);
+    src.value = before.length ? before[before.length - 1] : (months.length ? months[months.length - 1] : '');
+  };
+  $('#nm-year', root).addEventListener('change', syncSource);
+  $('#nm-month', root).addEventListener('change', syncSource);
+  syncSource();
+  $('#nm-form', root).addEventListener('submit', (e) => {
+    e.preventDefault();
+    const target = monthKey($('#nm-year', root).value, $('#nm-month', root).value);
+    if (state.data.plans[target]) { $('#nm-error', root).textContent = `${monthLabel(target)} の計画はすでにあります。`; return; }
+    const src = $('#nm-source', root).value;
+    state.data.plans[target] = src ? copyPlan(state.data.plans[src], target) : newPlan(target);
+    commit({ immediate: true });
+    closeModal();
+    setMonth(target);
+    toast(`${monthLabel(target)} を作成しました`);
+  });
+}
+
+function openModal(html) {
+  const root = $('#modal-root');
+  root.innerHTML = html;
+  root.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', (e) => {
+    if (e.target === el) closeModal();
+  }));
+  const first = root.querySelector('select, input, button.primary');
+  if (first) setTimeout(() => first.focus(), 30);
+  return root;
+}
+function closeModal() { $('#modal-root').innerHTML = ''; }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#modal-root').innerHTML) closeModal(); });
+
+/* =====================================================================
+ * 画面: ホーム
+ * ===================================================================== */
+const SERIES = [
+  { key: 'fixed', label: '固定費', color: 'var(--series-fixed)' },
+  { key: 'variable', label: '変動費予算', color: 'var(--series-variable)' },
+  { key: 'savings', label: '貯金・投資', color: 'var(--series-savings)' },
+  { key: 'reserve', label: '予備費', color: 'var(--series-reserve)' },
+];
+
+function allocationHTML(c) {
+  if (c.income <= 0 && c.spendAndSave <= 0) {
+    return `<div class="empty">収入と予算を入力すると、配分が表示されます。</div>`;
+  }
+  const over = c.reserve < 0;
+  // 予備費がマイナスのときは「支出＋貯金」を 100% として描き、収入の位置に線を引く
+  const base = over ? c.spendAndSave : c.income;
+  const parts = SERIES.filter((s) => !(over && s.key === 'reserve'))
+    .map((s) => ({ ...s, value: c[s.key] }))
+    .filter((s) => s.value > 0);
+  const segs = parts.map((s) => {
+    const w = (s.value / base) * 100;
+    const tip = `${s.label} ${yen(s.value)}（収入比 ${pct(c.share[s.key])}）`;
+    return `<div class="seg" style="flex:0 0 calc(${w}% - 2px);background:${s.color}" title="${esc(tip)}" aria-label="${esc(tip)}" role="img"></div>`;
+  }).join('');
+  let overlay = '';
+  if (over) {
+    const incomePos = (c.income / base) * 100;
+    overlay = `
+      <div class="alloc-over" style="left:${incomePos}%"></div>
+      <div class="alloc-marker ${incomePos < 25 ? 'at-start' : incomePos > 75 ? 'at-end' : ''}" style="left:${incomePos}%"><span>収入 ${yen(c.income)}</span></div>`;
+  }
+  const rows = SERIES.map((s) => {
+    const v = c[s.key];
+    const neg = s.key === 'reserve' && v < 0;
+    return `<tr class="${neg ? 'neg' : ''}">
+      <td><span class="lbl"><span class="swatch" style="background:${s.color}"></span>${s.label}${neg ? '（不足）' : ''}</span></td>
+      <td class="r num">${yen(v)}</td>
+      <td class="r num">${pct(c.share[s.key])}</td></tr>`;
+  }).join('');
+  return `
+    <div class="alloc-bar-wrap ${over ? 'is-over' : ''}">
+      <div class="alloc-bar">${segs}</div>
+      ${overlay}
+    </div>
+    <div class="alloc-scale"><span>0</span><span>${over ? '支出＋貯金 ' + yen(c.spendAndSave) : '収入 ' + yen(c.income)}</span></div>
+    <table class="legend" aria-label="収入比の配分">
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function renderHome() {
+  const p = plan();
+  const c = calcPlan(p, cats().savingsType);
+  const neg = c.reserve < 0;
+  let status;
+  if (neg) {
+    status = `<div class="status bad" role="alert"><span class="ico" aria-hidden="true">⚠️</span><div>
+      <strong>予算オーバー：${yen(-c.reserve)} 足りません。</strong><br>
+      変動費予算・貯金計画・固定費のどこかを削って、予備費を 0 以上にしましょう。
+      <div><a class="btn small danger" href="#input">入力で見直す</a></div></div></div>`;
+  } else if (c.income <= 0) {
+    status = `<div class="status good"><span class="ico" aria-hidden="true">ℹ️</span><div>まずは「入力」から収入見積を入れてください。</div></div>`;
+  } else {
+    status = `<div class="status good"><span class="ico" aria-hidden="true">✓</span><div>計画は収入の範囲に収まっています。予備費は収入の ${pct(c.share.reserve)} です。</div></div>`;
+  }
+
+  const stat = (k, v, s, color, extraCls = '') =>
+    `<div class="stat ${extraCls}"><div class="k">${color ? `<span class="swatch" style="background:${color}"></span>` : ''}${k}</div><div class="v num">${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+
+  const byType = c.savingsByType.filter((t) => t.amount > 0 || cats().savingsType.includes(t.type));
+
+  $('#view-home').innerHTML = `
+    <div class="card hero ${neg ? 'is-negative' : ''}">
+      <div class="hero-label">${monthLabel(p.month)}（${c.days}日）の予備費</div>
+      <div class="hero-value num">${yen(c.reserve)}</div>
+      ${status}
+    </div>
+
+    <h2 class="section-title">サマリー</h2>
+    <div class="stats">
+      ${stat('収入合計', yen(c.income))}
+      ${stat('固定費', yen(c.fixed), '収入比 ' + pct(c.share.fixed), 'var(--series-fixed)')}
+      ${stat('変動費予算', yen(c.variable), '収入比 ' + pct(c.share.variable), 'var(--series-variable)')}
+      ${stat('貯金合計', yen(c.savings), '収入比 ' + pct(c.share.savings), 'var(--series-savings)')}
+      ${stat('支出＋貯金', yen(c.spendAndSave), '固定費＋変動費＋貯金')}
+      ${stat('貯蓄率', pct(c.savingsRate), '貯金合計 ÷ 収入合計')}
+    </div>
+
+    <h2 class="section-title">収入比の配分</h2>
+    <div class="card">${allocationHTML(c)}</div>
+
+    <h2 class="section-title">貯金・投資の内訳</h2>
+    <div class="card">
+      ${byType.length ? `<ul class="subtypes">${byType.map((t) => `<li><span>${esc(t.type)}</span><span class="num">${yen(t.amount)}</span></li>`).join('')}</ul>`
+        : '<div class="muted">種別がありません</div>'}
+    </div>`;
+}
+
+/* =====================================================================
+ * 画面: 入力
+ * ===================================================================== */
+const PANES = {
+  income:   { step: 1, short: '収入', title: '収入見積', note: 'この月に入ってくる見込みの金額。', add: '収入を追加' },
+  fixed:    { step: 2, short: '固定費', title: '固定費', note: '家賃・通信・サブスクなど、毎月ほぼ決まっている支出。', add: '固定費を追加' },
+  savings:  { step: 3, short: '貯金', title: '貯金・投資計画', note: '先に確保する貯金・投資の金額。', add: '貯金・投資を追加' },
+  variable: { step: 4, short: '変動費', title: '変動費予算', note: '使い方で変わる支出の月予算。週・1日あたりの目安を自動計算します。', add: '変動費を追加' },
+};
+
+function optionList(values, current, placeholder) {
+  const list = [...values];
+  let html = placeholder != null ? `<option value="" ${current ? '' : 'selected'}>${esc(placeholder)}</option>` : '';
+  html += list.map((v) => `<option value="${esc(v)}" ${v === current ? 'selected' : ''}>${esc(v)}</option>`).join('');
+  if (current && !list.includes(current)) html += `<option value="${esc(current)}" selected>${esc(current)}（未登録）</option>`;
+  return html;
+}
+
+function paydayOptions(current) {
+  let html = `<option value="" ${current ? '' : 'selected'}>支払日</option>`;
+  for (let d = 1; d <= 31; d++) html += `<option value="${d}" ${String(d) === current ? 'selected' : ''}>${d}日</option>`;
+  html += `<option value="末" ${current === '末' ? 'selected' : ''}>月末</option>`;
+  if (current && !/^([1-9]|[12]\d|3[01]|末)$/.test(current)) html += `<option value="${esc(current)}" selected>${esc(current)}</option>`;
+  return html;
+}
+
+function derivedHTML(item, c) {
+  const d = calcVariableItem(item, c.days, c.variable);
+  return `<span>週 <b>${yen(d.weekly)}</b></span><span>1日 <b>${yen(d.daily)}</b></span><span>変動費内 <b>${pct(d.share)}</b></span>`;
+}
+
+function itemHTML(kind, item, c) {
+  const sw = `<label class="sw" title="集計に含める"><input type="checkbox" data-f="enabled" ${item.enabled ? 'checked' : ''} aria-label="有効（集計に含める）"><span></span></label>`;
+  const amt = `<div class="amt-wrap fade"><input data-f="amount" inputmode="numeric" autocomplete="off" enterkeyhint="done" value="${fmtInputAmount(item.amount)}" placeholder="0" aria-label="金額"></div>`;
+  const memo = `<input class="grow fade" data-f="memo" value="${esc(item.memo)}" placeholder="メモ" aria-label="メモ" autocomplete="off">`;
+  const del = `<button type="button" class="icon-btn" data-act="del" aria-label="この項目を削除" title="削除">×</button>`;
+  let body = '';
+  if (kind === 'income') {
+    body = `
+      <div class="row">${sw}<select class="grow fade" data-f="category" aria-label="収入項目">${optionList(cats().income, item.category, '収入項目')}</select>${amt}</div>
+      <div class="row">${memo}${del}</div>`;
+  } else if (kind === 'fixed') {
+    body = `
+      <div class="row">${sw}<input class="grow fade" data-f="name" value="${esc(item.name)}" placeholder="項目（例: 家賃）" aria-label="項目" autocomplete="off">${amt}</div>
+      <div class="row"><select class="payday fade" data-f="payDay" aria-label="支払日">${paydayOptions(item.payDay)}</select>${memo}${del}</div>`;
+  } else if (kind === 'savings') {
+    body = `
+      <div class="row">${sw}<input class="grow fade" data-f="name" value="${esc(item.name)}" placeholder="貯金先・投資先" aria-label="貯金先・投資先" autocomplete="off">${amt}</div>
+      <div class="row"><select class="stype fade" data-f="type" aria-label="種別">${optionList(cats().savingsType, item.type, '種別')}</select>${memo}${del}</div>`;
+  } else {
+    body = `
+      <div class="row">${sw}<select class="grow fade" data-f="category" aria-label="変動費の項目">${optionList(cats().variable, item.category, '項目')}</select>${amt}</div>
+      <div class="derived fade" data-derived>${derivedHTML(item, c)}</div>
+      <div class="row">${memo}${del}</div>`;
+  }
+  return `<div class="item ${item.enabled ? '' : 'is-off'}" data-id="${esc(item.id)}">${body}</div>`;
+}
+
+function renderInputTabs(c) {
+  const totals = { income: c.income, fixed: c.fixed, savings: c.savings, variable: c.variable };
+  $('#input-tabs').innerHTML = PLAN_KINDS.map((k) => `
+    <button type="button" class="tab" role="tab" data-tab="${k}" aria-selected="${state.tab === k}">
+      <span>${PANES[k].step} ${PANES[k].short}</span><span class="n">${yen(totals[k])}</span>
+    </button>`).join('');
+}
+
+function renderMiniSummary(c) {
+  const el = $('#mini-summary');
+  el.classList.toggle('is-negative', c.reserve < 0);
+  el.innerHTML = `
+    <div><div class="k">収入</div><div class="v num">${yen(c.income)}</div></div>
+    <div><div class="k">支出＋貯金</div><div class="v num">${yen(c.spendAndSave)}</div></div>
+    <div class="reserve"><div class="k">${c.reserve < 0 ? '⚠ 予備費' : '予備費'}</div><div class="v num">${yen(c.reserve)}</div></div>`;
+}
+
+function paneFootHTML(kind, c) {
+  const items = plan()[kind];
+  const on = items.filter((i) => i.enabled).length;
+  let sub = '';
+  if (kind === 'savings') {
+    sub = `<div class="total-sub">${c.savingsByType.map((t) => `<span>${esc(t.type)} <b class="num">${yen(t.amount)}</b></span>`).join('')}</div>`;
+  } else if (kind === 'variable') {
+    sub = `<div class="total-sub"><span>週あたり <b class="num">${yen(c.variable * 12 / 365 * 7)}</b></span><span>1日あたり <b class="num">${yen(c.variable / c.days)}</b></span></div>`;
+  }
+  return `
+    <div class="total-row"><span>${PANES[kind].title} 合計 <span class="muted" style="font-weight:500;font-size:13px">（有効 ${on}/${items.length}件）</span></span><span class="v num">${yen(c[kind])}</span></div>
+    ${sub}`;
+}
+
+function renderInputPane() {
+  const kind = state.tab;
+  const p = plan();
+  const c = calcPlan(p, cats().savingsType);
+  const cfg = PANES[kind];
+  const items = p[kind];
+  const next = PLAN_KINDS[PLAN_KINDS.indexOf(kind) + 1];
+  let extra = '';
+  if (kind === 'variable') {
+    const missing = cats().variable.filter((v) => !items.some((i) => i.category === v));
+    if (missing.length) extra = `<button type="button" class="btn block" data-act="add-missing">未追加のカテゴリをまとめて追加（${missing.length}件）</button>`;
+  }
+  $('#input-pane').innerHTML = `
+    <div class="pane-head"><h2>${cfg.step}. ${cfg.title}</h2></div>
+    <p class="pane-note">${cfg.note}スイッチを切ると、消さずに集計から外せます。</p>
+    <div class="items" id="items">
+      ${items.length ? items.map((it) => itemHTML(kind, it, c)).join('') : '<div class="empty">まだ項目がありません</div>'}
+    </div>
+    <div class="pane-foot">
+      <button type="button" class="btn primary block" data-act="add">＋ ${cfg.add}</button>
+      ${extra}
+      <div id="pane-foot">${paneFootHTML(kind, c)}</div>
+      <div class="next-step">${next
+        ? `<button type="button" class="btn ghost" data-tab="${next}">次へ：${PANES[next].step}. ${PANES[next].title} →</button>`
+        : `<a class="btn ghost" href="#home">予備費を確認する →</a>`}</div>
+    </div>`;
+  renderInputTabs(c);
+  renderMiniSummary(c);
+}
+
+/** 入力中の再計算（フォーカスを保つため、リストは描き直さない） */
+function refreshInputTotals() {
+  const c = calcPlan(plan(), cats().savingsType);
+  renderInputTabs(c);
+  renderMiniSummary(c);
+  $('#pane-foot').innerHTML = paneFootHTML(state.tab, c);
+  if (state.tab === 'variable') {
+    for (const it of plan().variable) {
+      const el = document.querySelector(`.item[data-id="${CSS.escape(it.id)}"] [data-derived]`);
+      if (el) el.innerHTML = derivedHTML(it, c);
+    }
+  }
+}
+
+function findItem(el) {
+  const card = el.closest('.item');
+  if (!card) return null;
+  const item = plan()[state.tab].find((i) => i.id === card.dataset.id);
+  return item ? { card, item } : null;
+}
+
+function setupInputEvents() {
+  const pane = $('#input-pane');
+
+  pane.addEventListener('input', (e) => {
+    const f = e.target.dataset.f;
+    const hit = f && findItem(e.target);
+    if (!hit) return;
+    if (f === 'amount') hit.item.amount = toAmount(e.target.value);
+    else if (f === 'enabled') return; // change で処理
+    else hit.item[f] = e.target.value;
+    touchItem(hit.item);
+    commit();
+    if (f === 'amount') refreshInputTotals();
+  });
+
+  pane.addEventListener('change', (e) => {
+    const f = e.target.dataset.f;
+    const hit = f && findItem(e.target);
+    if (!hit) return;
+    if (f === 'enabled') {
+      hit.item.enabled = e.target.checked;
+      hit.card.classList.toggle('is-off', !hit.item.enabled);
+    } else if (f === 'amount') {
+      hit.item.amount = toAmount(e.target.value);
+      e.target.value = fmtInputAmount(hit.item.amount);
+    } else {
+      hit.item[f] = e.target.value;
+    }
+    touchItem(hit.item);
+    commit();
+    refreshInputTotals();
+  });
+
+  // 金額欄: フォーカス時はカンマを外して編集しやすく
+  pane.addEventListener('focusin', (e) => {
+    if (e.target.dataset.f === 'amount') {
+      const v = toAmount(e.target.value);
+      e.target.value = v ? String(v) : '';
+    }
+  });
+  pane.addEventListener('focusout', (e) => {
+    if (e.target.dataset.f === 'amount') e.target.value = fmtInputAmount(toAmount(e.target.value));
+  });
+  pane.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.target.blur();
+  });
+
+  pane.addEventListener('click', (e) => {
+    const btn = e.target.closest('button, a');
+    if (!btn) return;
+    const kind = state.tab;
+    const p = plan();
+    if (btn.dataset.tab) { switchTab(btn.dataset.tab); return; }
+    if (btn.dataset.act === 'add') {
+      const item = newItem(kind, defaultFieldsFor(kind));
+      p[kind].push(item);
+      p.updatedAt = item.updatedAt;
+      commit({ immediate: true });
+      renderInputPane();
+      const card = document.querySelector(`.item[data-id="${CSS.escape(item.id)}"]`);
+      if (card) {
+        card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        const focusEl = card.querySelector(kind === 'fixed' || kind === 'savings' ? '[data-f="name"]' : '[data-f="amount"]');
+        if (focusEl) focusEl.focus({ preventScroll: true });
+      }
+    } else if (btn.dataset.act === 'add-missing') {
+      const missing = cats().variable.filter((v) => !p.variable.some((i) => i.category === v));
+      for (const v of missing) p.variable.push(newItem('variable', { category: v }));
+      p.updatedAt = nowISO();
+      commit({ immediate: true });
+      renderInputPane();
+      toast(`${missing.length}件追加しました`);
+    } else if (btn.dataset.act === 'del') {
+      const hit = findItem(btn);
+      if (!hit) return;
+      const label = hit.item.name || hit.item.category || '（無題）';
+      if (!confirm(`「${label}」を削除しますか？\n一時的に外すだけなら、スイッチをオフにしてください。`)) return;
+      p[kind] = p[kind].filter((i) => i.id !== hit.item.id);
+      p.updatedAt = nowISO();
+      commit({ immediate: true });
+      renderInputPane();
+    }
+  });
+
+  $('#input-tabs').addEventListener('click', (e) => {
+    const t = e.target.closest('[data-tab]');
+    if (t) switchTab(t.dataset.tab);
+  });
+}
+
+function defaultFieldsFor(kind) {
+  const p = plan();
+  if (kind === 'income') return { category: cats().income[0] || '' };
+  if (kind === 'savings') return { type: cats().savingsType[0] || '' };
+  if (kind === 'variable') {
+    const unused = cats().variable.find((v) => !p.variable.some((i) => i.category === v));
+    return { category: unused || cats().variable[0] || '' };
+  }
+  return {};
+}
+
+function switchTab(tab) {
+  if (!PLAN_KINDS.includes(tab)) return;
+  state.tab = tab;
+  renderInputPane();
+  window.scrollTo({ top: 0 });
+}
+
+/* =====================================================================
+ * 画面: 設定
+ * ===================================================================== */
+const CAT_LABELS = { income: '収入カテゴリ', variable: '変動費カテゴリ', savingsType: '貯金・投資の種別' };
+
+function renderSettings() {
+  const catEditor = (key) => {
+    const list = cats()[key];
+    return `
+      <details class="card" data-cat="${key}">
+        <summary>${CAT_LABELS[key]} <span class="muted" style="font-weight:500;font-size:13px;margin-left:auto;margin-right:8px">${list.length}件</span></summary>
+        <ul class="cat-list">
+          ${list.map((name, i) => `<li><span class="name">${esc(name)}</span>
+            <button type="button" class="icon-btn" data-cat-act="up" data-i="${i}" ${i === 0 ? 'disabled' : ''} aria-label="${esc(name)} を上へ">↑</button>
+            <button type="button" class="icon-btn" data-cat-act="down" data-i="${i}" ${i === list.length - 1 ? 'disabled' : ''} aria-label="${esc(name)} を下へ">↓</button>
+            <button type="button" class="icon-btn" data-cat-act="del" data-i="${i}" aria-label="${esc(name)} を削除">×</button></li>`).join('')}
+        </ul>
+        <form class="inline-form" data-cat-form="${key}">
+          <input name="name" placeholder="新しいカテゴリ名" aria-label="新しいカテゴリ名" autocomplete="off" maxlength="40">
+          <button class="btn" type="submit">追加</button>
+        </form>
+        <p class="help">削除しても、すでに入力した項目はそのまま残ります。</p>
+      </details>`;
+  };
+  const planCount = sortedMonths().length;
+  $('#view-settings').innerHTML = `
+    <h2 class="section-title">カテゴリ</h2>
+    ${CATEGORY_KEYS.map(catEditor).join('')}
+
+    <h2 class="section-title">データ</h2>
+    <div class="card settings-actions">
+      <button type="button" class="btn block" data-act="export">JSON ファイルに書き出す</button>
+      <button type="button" class="btn block" data-act="import">JSON ファイルから読み込む</button>
+      <p class="help">データはこの端末のブラウザ内だけに保存されています。機種変更やブラウザのデータ削除に備えて、ときどき書き出しておくと安心です。読み込むと、今のデータは上書きされます。</p>
+    </div>
+
+    <h2 class="section-title">月の計画</h2>
+    <div class="card settings-actions">
+      <button type="button" class="btn block danger" data-act="delete-month">${monthLabel(state.month)} の計画を削除</button>
+      <p class="help">保存されている月: ${planCount}件</p>
+    </div>
+
+    <h2 class="section-title">この端末</h2>
+    <div class="card settings-actions">
+      <button type="button" class="btn block" data-act="relock">この端末のロック解除を取り消す</button>
+      <p class="help">次に開いたとき、もう一度パスコードを求めます。データは消えません。</p>
+      <button type="button" class="btn block danger" data-act="reset">すべてのデータを削除</button>
+    </div>
+    <p class="help" style="text-align:center;margin-top:20px">お金計画 · schemaVersion ${SCHEMA_VERSION}</p>`;
+}
+
+function setupSettingsEvents() {
+  const root = $('#view-settings');
+
+  root.addEventListener('submit', (e) => {
+    const form = e.target.closest('[data-cat-form]');
+    if (!form) return;
+    e.preventDefault();
+    const key = form.dataset.catForm;
+    const input = form.elements.name;
+    const name = input.value.trim();
+    if (!name) return;
+    if (cats()[key].includes(name)) { toast('同じ名前のカテゴリがあります'); return; }
+    cats()[key].push(name);
+    categoriesChanged();
+    renderSettingsKeepOpen(key);
+    const newInput = $(`[data-cat-form="${key}"] input`);
+    if (newInput) newInput.focus();
+  });
+
+  root.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const catAct = btn.dataset.catAct;
+    if (catAct) {
+      const key = btn.closest('[data-cat]').dataset.cat;
+      const list = cats()[key];
+      const i = Number(btn.dataset.i);
+      if (catAct === 'up' && i > 0) [list[i - 1], list[i]] = [list[i], list[i - 1]];
+      else if (catAct === 'down' && i < list.length - 1) [list[i + 1], list[i]] = [list[i], list[i + 1]];
+      else if (catAct === 'del') {
+        if (!confirm(`カテゴリ「${list[i]}」を削除しますか？`)) return;
+        list.splice(i, 1);
+      } else return;
+      categoriesChanged();
+      renderSettingsKeepOpen(key);
+      return;
+    }
+    switch (btn.dataset.act) {
+      case 'export': exportJSON(); break;
+      case 'import': $('#import-file').click(); break;
+      case 'delete-month': deleteCurrentMonth(); break;
+      case 'relock':
+        if (!confirm('この端末のロック解除を取り消しますか？\n次に開くときにパスコードが必要になります。')) return;
+        await flushSave();
+        Storage.clearUnlock();
+        location.reload();
+        break;
+      case 'reset':
+        if (!confirm('すべての月の計画とカテゴリを削除して、初期状態に戻します。よろしいですか？')) return;
+        if (!confirm('本当に削除しますか？元に戻せません。（先に書き出しておくことをおすすめします）')) return;
+        await Storage.clear();
+        state.data = createInitialData();
+        ensureAnyPlan();
+        setMonth(pickDefaultMonth());
+        toast('初期状態に戻しました');
+        break;
+    }
+  });
+
+  $('#import-file').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const imported = normalizeData(JSON.parse(String(reader.result)));
+        const n = Object.keys(imported.plans).length;
+        if (!confirm(`${n}か月分の計画を読み込みます。今のデータは上書きされます。よろしいですか？`)) return;
+        state.data = imported;
+        ensureAnyPlan();
+        commit({ immediate: true });
+        setMonth(pickDefaultMonth());
+        toast('読み込みました');
+      } catch (err) {
+        console.error(err);
+        alert('読み込めませんでした: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function categoriesChanged() {
+  state.data.categoriesUpdatedAt = nowISO();
+  commit({ immediate: true });
+}
+
+function renderSettingsKeepOpen(key) {
+  const open = [...document.querySelectorAll('#view-settings details[open]')].map((d) => d.dataset.cat);
+  if (key && !open.includes(key)) open.push(key);
+  renderSettings();
+  for (const k of open) { const d = $(`#view-settings details[data-cat="${k}"]`); if (d) d.open = true; }
+}
+
+function exportJSON() {
+  const d = new Date();
+  const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `okane-plan-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function deleteCurrentMonth() {
+  const m = state.month;
+  if (!confirm(`${monthLabel(m)} の計画を削除しますか？元に戻せません。`)) return;
+  delete state.data.plans[m];
+  ensureAnyPlan();
+  commit({ immediate: true });
+  setMonth(pickDefaultMonth());
+  toast(`${monthLabel(m)} を削除しました`);
+}
+
+/* =====================================================================
+ * 画面の切り替え
+ * ===================================================================== */
+function renderAll() {
+  renderHome();
+  renderInputPane();
+  renderSettingsKeepOpen();
+}
+
+function applyRoute() {
+  const v = (location.hash || '#home').slice(1);
+  state.view = ['home', 'input', 'settings'].includes(v) ? v : 'home';
+  document.querySelectorAll('[data-view]').forEach((el) => el.classList.toggle('hidden', el.dataset.view !== state.view));
+  document.querySelectorAll('[data-nav]').forEach((a) => {
+    if (a.dataset.nav === state.view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  });
+  if (state.view === 'home') renderHome();
+  if (state.view === 'input') renderInputPane();
+  window.scrollTo({ top: 0 });
+}
+
+/* =====================================================================
+ * 起動
+ * ===================================================================== */
+async function startApp() {
+  let raw = null;
+  try {
+    raw = await Storage.load();
+  } catch (e) {
+    console.error(e);
+    alert('保存データを読み込めませんでした。初期状態で開きます。');
+  }
+  try {
+    state.data = raw ? normalizeData(raw) : createInitialData();
+  } catch (e) {
+    console.error(e);
+    alert('保存データの形式が正しくありません: ' + e.message);
+    state.data = createInitialData();
+  }
+  ensureAnyPlan();
+  state.month = pickDefaultMonth();
+
+  $('#lock').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  $('#bottomnav').classList.remove('hidden');
+
+  renderMonthSelect();
+  $('#month-select').addEventListener('change', (e) => setMonth(e.target.value));
+  $('#new-month-btn').addEventListener('click', openNewMonthDialog);
+  setupInputEvents();
+  setupSettingsEvents();
+  window.addEventListener('hashchange', applyRoute);
+  // 画面を離れるときは保存を確定させる
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && saveTimer) flushSave(); });
+  window.addEventListener('pagehide', () => { if (saveTimer) flushSave(); });
+
+  renderAll();
+  applyRoute();
+}
+
+function showLock() {
+  $('#lock').classList.remove('hidden');
+  const input = $('#lock-input');
+  const err = $('#lock-error');
+  if (!(window.crypto && crypto.subtle)) {
+    err.textContent = 'このブラウザ環境ではパスコードを確認できません。https:// のページで開いてください。';
+  }
+  setTimeout(() => input.focus(), 50);
+  $('#lock-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    err.textContent = '';
+    try {
+      const hash = await sha256Hex(input.value);
+      if (hash === PASSCODE_HASH) {
+        Storage.setUnlocked(PASSCODE_HASH);
+        input.value = '';
+        startApp();
+      } else {
+        err.textContent = 'パスコードが違います';
+        input.select();
+        const box = $('#lock .box');
+        box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+      }
+    } catch (ex) {
+      console.error(ex);
+      err.textContent = 'パスコードを確認できませんでした。https:// のページで開いてください。';
+    }
+  });
+}
+
+if (Storage.isUnlocked(PASSCODE_HASH)) startApp();
+else showLock();
+</script>
+</body>
+</html>
