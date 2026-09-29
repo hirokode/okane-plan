@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- お金計画のアイコン: 収入の配分（固定費・変動費・貯金・予備費）のドーナツと ¥ -->
+  <rect width="1024" height="1024" fill="#f6f5f1"/>
+  <g fill="none" stroke-width="150" transform="rotate(-90 512 512)">
+    <circle cx="512" cy="512" r="300" pathLength="100" stroke="#2a78d6" stroke-dasharray="34 66" stroke-dashoffset="-1"/>
+    <circle cx="512" cy="512" r="300" pathLength="100" stroke="#eb6834" stroke-dasharray="23 77" stroke-dashoffset="-37"/>
+    <circle cx="512" cy="512" r="300" pathLength="100" stroke="#1baf7a" stroke-dasharray="23 77" stroke-dashoffset="-62"/>
+    <circle cx="512" cy="512" r="300" pathLength="100" stroke="#cfcdc6" stroke-dasharray="11 89" stroke-dashoffset="-87"/>
+  </g>
+  <g fill="none" stroke="#1b1b1a" stroke-width="58" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M418 386 L512 500 L606 386"/>
+    <path d="M512 500 L512 646"/>
+    <path d="M436 530 H588"/>
+    <path d="M436 596 H588"/>
+  </g>
+</svg>
