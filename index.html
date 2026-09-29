@@ -413,14 +413,14 @@ details.card[open] > summary { margin-bottom: 10px; }
 // 作り方は README.md の「パスコードの設定」を参照。
 const PASSCODE_HASH = '42f0fa5ac5135466b793a54d3d9029212ad9948b616bb201e0dd4ce9edc522bd';
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 const PLAN_KINDS = ['income', 'fixed', 'savings', 'variable'];
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 // 初期カテゴリ（金額や個人の項目は入れない）
 const DEFAULT_CATEGORIES = {
   income: ['給与', '副業', '賞与', '臨時収入', 'その他収入'],
-  variable: ['飲み代', '外食費', '旅費', 'いろいろ', '食費', '日用品', '交通費', '美容', '医療', '娯楽', '服飾', 'プレゼント', '学習', '趣味', 'その他'],
+  variable: ['日用品', '娯楽', '未分類', '外食', '交際費', '軽食', '散髪', '通院', '食費', '釣り', '固定費', 'その他'],
   savingsType: ['現金', '投資', '持ち株会'],
 };
 const CATEGORY_KEYS = Object.keys(DEFAULT_CATEGORIES);
@@ -536,6 +536,26 @@ function migrate(d) {
       if (p && typeof p === 'object') { p.variableMode = 'items'; p.variableTotal = 0; }
     }
     d.schemaVersion = 2;
+  }
+  if (v < 3) {
+    // v2 → v3: 変動費カテゴリを新しい初期値（家計簿アプリと同じ項目・順番）に置き換える
+    const OLD_VARIABLE = ['飲み代', '外食費', '旅費', 'いろいろ', '食費', '日用品', '交通費', '美容', '医療', '娯楽', '服飾', 'プレゼント', '学習', '趣味', 'その他'];
+    const NEW_VARIABLE = DEFAULT_CATEGORIES.variable;
+    const dropped = OLD_VARIABLE.filter((c) => !NEW_VARIABLE.includes(c));
+    if (d.categories && Array.isArray(d.categories.variable)) {
+      // 自分で追加したカテゴリは消さずに後ろへ残す
+      const extras = d.categories.variable.filter((c) => !OLD_VARIABLE.includes(c) && !NEW_VARIABLE.includes(c));
+      d.categories.variable = [...NEW_VARIABLE, ...extras];
+      d.categoriesUpdatedAt = new Date().toISOString();
+    }
+    for (const p of Object.values(d.plans || {})) {
+      if (!p || !Array.isArray(p.variable)) continue;
+      p.variable = p.variable
+        .map((it) => (it && it.category === '外食費' ? { ...it, category: '外食' } : it))
+        // なくなったカテゴリの、金額もメモも空の項目は片付ける（金額やメモがあれば残す）
+        .filter((it) => !(it && dropped.includes(it.category) && !toAmount(it.amount) && !String(it.memo || '').trim()));
+    }
+    d.schemaVersion = 3;
   }
   return d;
 }
@@ -964,6 +984,12 @@ function paydayOptions(current) {
   return html;
 }
 
+/** 変動費の項目をカテゴリマスタの順に並べる（マスタにないものは後ろ、同じカテゴリは入力順） */
+function sortByCategoryOrder(items, order) {
+  const rank = (it) => { const i = order.indexOf(it.category); return i < 0 ? order.length : i; };
+  return items.map((it, i) => ({ it, i })).sort((a, b) => rank(a.it) - rank(b.it) || a.i - b.i).map((x) => x.it);
+}
+
 function totalDerivedHTML(c) {
   return `<span>週 <b>${yen(c.variableWeekly)}</b></span><span>1日 <b>${yen(c.variableDaily)}</b></span><span>${c.days}日の月</span>`;
 }
@@ -1080,7 +1106,7 @@ function renderInputPane() {
     ${modeSwitch}
     <p class="pane-note">${cfg.note}スイッチを切ると、消さずに集計から外せます。</p>
     <div class="items" id="items">
-      ${items.length ? items.map((it) => itemHTML(kind, it, c)).join('') : '<div class="empty">まだ項目がありません</div>'}
+      ${items.length ? (kind === 'variable' ? sortByCategoryOrder(items, cats().variable) : items).map((it) => itemHTML(kind, it, c)).join('') : '<div class="empty">まだ項目がありません</div>'}
     </div>
     <div class="pane-foot">
       <button type="button" class="btn primary block" data-act="add">＋ ${cfg.add}</button>
